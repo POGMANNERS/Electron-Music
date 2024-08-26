@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Wall</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+</head>
+<body>
+
+  <div class="player">
+
+    <!-- <input type="file" id="input" directory webkitdirectory multiple accept=".mp3"> -->
+    <button id="open-file-button">+</button>
+    <button id="remove-track-button">-</button>
+    <div class="details">
+      <div class="now-playing">Éppen lejátszva: x. a y-ből</div>
+      <div class="track-art"></div>
+      <div class="track-name">Zeneszám címe</div>
+      <div class="track-artist">Előadó neve</div>
+    </div>
+
+    <div class="buttons">
+      <div class="prev-track" onclick="prevTrack()">
+        <i class="fa fa-step-backward fa-2x"></i>
+      </div>
+      <div class="playpause-track" onclick="playpauseTrack()">
+        <i class="fa fa-play-circle fa-5x"></i>
+      </div>
+      <div class="next-track" onclick="nextTrack()">
+        <i class="fa fa-step-forward fa-2x"></i>
+      </div>
+    </div>
+
+    <div class="slider_container">
+      <div class="current-time">00:00</div>
+      <input type="range" min="1" max="100"
+        value="0" class="seek_slider" oninput="seekTo()">
+      <div class="total-duration">00:00</div>
+    </div>
+
+    <div class="slider_container">
+      <i class="fa fa-volume-down"></i>
+      <input type="range" min="0" max="100"
+        value="100" class="volume_slider" oninput="setVolume()">
+      <i class="fa fa-volume-up"></i>
+    </div>
+
+    <div class="repeat-track" onclick="repeatTrack()">
+      <img style="padding: 25px; width: 28px; height: 32px;" src="./NoRepeat.png" alt="Ismétlés">
+    </div>
+    
+  </div>
+
+  <div class="list">
+    <ol id="songlist"></ol>
+  </div>
+  
+  <script src="scripts.js"></script>
+</body>
+</html>
