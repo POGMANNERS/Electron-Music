@@ -8,7 +8,9 @@ let track_artist = document.querySelector(".track-artist");
 let playpause_btn = document.querySelector(".playpause-track");
 let next_btn = document.querySelector(".next-track");
 let prev_btn = document.querySelector(".prev-track");
- 
+const add_btn = document.getElementById('open-file-button');
+const remove_btn = document.getElementById('remove-track-button');
+
 let seek_slider = document.querySelector(".seek_slider");
 let seek;
 let volume_slider = document.querySelector(".volume_slider");
@@ -18,7 +20,6 @@ let curr;
 let total_duration = document.querySelector(".total-duration");
 let total;
 
-const remove_btn = document.getElementById('remove-track-button');
 let files = [];
 let filePaths = [];
 let firstTime;
@@ -38,6 +39,7 @@ let curr_track = document.createElement('audio');
 
 document.addEventListener("DOMContentLoaded", async() => 
   {
+    disableButtons();
     const loadState = await window.electronAPI.loadState();
     filePaths = loadState.filePaths || [];
     track_index = loadState.track_index || 0;
@@ -47,21 +49,26 @@ document.addEventListener("DOMContentLoaded", async() =>
     //seek = loadState.seek;
     //duration = Math.floor(loadState.duration);
 
-    console.log('isRepeat: ',isRepeating);
-
-    await loadUpFiles();
-    await updateTrackList(files);
-    updateDisplayList();
-    loadTrack(track_index);
-    pauseTrack();
-    if (isRepeating){repeatTrack();}
-      
-
-    volume_slider.value=volume;
-    volume_slider.textContent=volume;
-    setVolume();
-
-    files = [];
+    //console.log('isRepeat: ',isRepeating);
+    //console.log('FilePaTHS: ',filePaths);
+    if (filePaths.length!=0)
+    {
+      await loadUpFiles();
+      await updateTrackList();
+      updateDisplayList();
+      loadTrack(track_index);
+      pauseTrack();
+      if (isRepeating){repeatTrack();}
+      volume_slider.value=volume;
+      volume_slider.textContent=volume;
+      setVolume();
+      files = [];
+    }
+    else
+    {
+      //console.log('filePaths: ',filePaths);
+    }
+    enableButtons();
 });
 
 function updateState()
@@ -79,28 +86,37 @@ function updateState()
   window.electronAPI.backupState(state);
 }
 
-document.getElementById('open-file-button').addEventListener('click', async () => {
-    filePaths = await window.electronAPI.openFileDialog();
-    //console.log('File Paths: ',filePaths);
+add_btn.addEventListener('click', async () => 
+  {
+    disableButtons();
+    const tempfilePaths = await window.electronAPI.openFileDialog();
+    for (temp of tempfilePaths)
+    {
+      filePaths.push(temp);
+    }
+    console.log('File Paths: ',filePaths);
     
     await loadUpFiles();
 
-    await updateTrackList(files);
+    await updateTrackList();
     updateDisplayList();
     loadTrack(track_index);
     pauseTrack();
     updateState();
 
     files = [];
-});
+   enableButtons(); 
+  });
 
 async function loadUpFiles()
 {
   try
   {
-    for (const filePath of filePaths) {
-      //console.log("File path:", filePath);
+    for (let filePath of filePaths) {
+      filePath = String(filePath);
+      //console.log("File path:", filePath, 'TYPE: ',filePath.typeof);
 
+      
       // Get the base64 string from the main process
       const base64Data = await window.electronAPI.filePathToBase64(filePath);
       
@@ -138,8 +154,10 @@ remove_btn.addEventListener('click', function()
   removeTrack();
 });
 
-async function updateTrackList(files) 
+async function updateTrackList() 
 { 
+  storage = [];
+  track_list = [];
   for (const file of files) 
     {
     //console.log('TRACKLISTFILE',file)
@@ -161,7 +179,8 @@ async function updateTrackList(files)
   }
 }
 
-function updateDisplayList() {
+function updateDisplayList() 
+{
   if (!block)
   {
     music_list.style.display = "block";
@@ -177,6 +196,25 @@ function updateDisplayList() {
     li.appendChild(spa);
     music_list.appendChild(li);
   }
+}
+
+function disableButtons()
+{
+  next_btn.disabled = true;
+  prev_btn.disabled = true;
+  add_btn.disabled = true;
+  remove_btn.disabled = true;
+  seek_slider.disabled = true;
+  volume_slider.disabled = true;
+}
+function enableButtons()
+{
+  next_btn.disabled = false;
+  prev_btn.disabled = false;
+  add_btn.disabled = false;
+  remove_btn.disabled = false;
+  seek_slider.disabled = false;
+  volume_slider.disabled = false;
 }
 
 function getTitle(tag, name) {
@@ -221,15 +259,28 @@ function addTrack(name, artist, image) {
   });
 }
 
-function removeTrack()
+async function removeTrack()
 {
-  console.log(track_index);
-  storage.slice(track_index);
-  track_list.slice(track_index);
-  filePaths.slice(track_index);
+  disableButtons();
+  nextTrack();
+  filePaths.splice(track_index-1, 1);
+  if (track_index==0)
+    now_playing.textContent =  track_index+1 + "/" + (track_list.length-1);
+  else
+    now_playing.textContent =  track_index + "/" + (track_list.length-1);
+  files = [];
+
+  await loadUpFiles();
+  await updateTrackList();
   updateDisplayList();
-  loadTrack(track_index);
-  playTrack();
+
+  files = [];
+  updateState();
+  if (track_list.length==0)
+  {
+    location.reload();
+  }
+  enableButtons();
 }
 
 function loadTrack(track_index) {
@@ -246,7 +297,8 @@ function loadTrack(track_index) {
     track_art.style.backgroundImage = track_list[track_index].image;
     track_name.textContent = track_list[track_index].name;
     track_artist.textContent = track_list[track_index].artist;
-    now_playing.textContent = "Éppen lejátszva: " + (track_index + 1) + ". a " + track_list.length + "-ből";
+    //now_playing.textContent = "Éppen lejátszva: " + (track_index + 1) + ". a " + track_list.length + "-ből";
+    now_playing.textContent =  (track_index + 1) + "/" + track_list.length;
    
     updateTimer = setInterval(seekUpdate, 1000);
 
