@@ -291,9 +291,15 @@ function random_bg_color() {
     let red = Math.floor(Math.random() * 256) + 64;
     let green = Math.floor(Math.random() * 256) + 64;
     let blue = Math.floor(Math.random() * 256) + 64;
-   
-    let bgColor = "rgb(" + red + ", " + green + ", " + blue + ")";
-   
+
+    let bgColor;
+    let darkmode = true;
+    if (darkmode) {
+      bgColor = "rgb(" + red/3 + ", " + green/3 + ", " + blue/3 + ")";
+    } else {
+      bgColor = "rgb(" + red + ", " + green + ", " + blue + ")";
+    }
+
     document.body.style.background = bgColor;
 }
 
