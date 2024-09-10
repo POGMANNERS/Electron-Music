@@ -4,12 +4,13 @@ const fs = require('fs');
 const os = require('os');
 
 const dataPath = path.join(os.homedir(), 'Documents', 'Music Wall Data');
-const dataFilePath = path.join(dataPath, 'state(songs).json');
+const dataFilePath = path.join(dataPath, 'Settings.json');
 
 if (!fs.existsSync(dataPath)) 
 {
   fs.mkdirSync(dataPath, { recursive: true });
 }
+
 
 let mainWindow;
 
@@ -84,6 +85,53 @@ app.whenReady().then(() =>
         catch (err) 
         {
             console.error('Error writing JSON file: ', err);
+        }
+    });
+
+    ipcMain.handle('backup-playlist', (event, playlist, playlist_name) => 
+    {
+        try 
+        {
+            const playlistFilePath = path.join(dataPath, playlist_name.stringify, '-playlist.json');
+            fs.writeFileSync(playlistFilePath, JSON.stringify(playlist, null, 2));
+        } 
+        catch (err) 
+        {
+            console.error('Error writing JSON file: ', err);
+        }
+    });
+
+    ipcMain.handle('load-playlist', (event, playlist_name) => 
+    {
+        try 
+        {
+            playlistFilePath = path.join(dataPath, playlist_name.stringify,'-playlist.json');
+            const data = fs.readFileSync(playlistFilePath);
+            return JSON.parse(data);
+        } 
+        catch (err) 
+        {
+            console.error('Error reading or parsing JSON file: ', err);
+            return {};
+        }
+    });
+
+    ipcMain.handle('get-playlists', () => 
+    {
+        try 
+        {
+            const files = fs.readdirSync(dataPath);
+            const playlists = files.filter(file => file.endsWith('-playlist.json'));
+            for (let i = 0; i<playlists.length;i++)
+            {
+                playlists[i] = playlists[i].slice(0,-14);
+            }
+            return playlists;
+        }
+        catch (err) 
+        {
+            console.error('Error reading or parsing JSON files: ', err);
+            return;
         }
     });
 

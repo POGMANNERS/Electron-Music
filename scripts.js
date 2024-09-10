@@ -23,6 +23,8 @@ let total;
 let files = [];
 let filePaths = [];
 let firstTime;
+let playlist_name = "default";
+let playlist_names = [];
 
 let storage = [];
 let track_list = [];
@@ -31,6 +33,7 @@ let isPlaying = false;
 let updateTimer;
 let url = "";
 let music_list = document.querySelector("#songlist");
+let playlist_list = document.querySelector("#playlistlist");
 let isRepeating = false;
 let block = false;
 let repeatIcon = document.querySelector(".repeat-track");
@@ -40,14 +43,12 @@ let curr_track = document.createElement('audio');
 document.addEventListener("DOMContentLoaded", async() => 
   {
     disableButtons();
-    const loadState = await window.electronAPI.loadState();
-    filePaths = loadState.filePaths || [];
-    track_index = loadState.track_index || 0;
-    isPlaying = loadState.isPlaying || false;
-    isRepeating = loadState.isRepeating || false;
-    volume = loadState.volume;
+    
+    await getPlaylists();
 
-    console.log("TRACK_INDEX: ", track_index);
+    await loadState();
+    await loadPlaylist();
+    updatePlaylistList();
 
     if (filePaths.length!=0)
     {
@@ -67,20 +68,49 @@ document.addEventListener("DOMContentLoaded", async() =>
       volume_slider.textContent=volume;
       setVolume();
     }
+
     enableButtons();
 });
+
+async function loadPlaylist()
+{
+  console.log("MR: UNDEFINED "+playlist_name);
+  const loadPlaylist = await window.electronAPI.loadPlaylist(playlist_name);
+  filePaths = loadPlaylist.filePaths || [];
+}
+
+async function getPlaylists()
+{
+  playlist_names = await window.electronAPI.getPlaylists();
+  if (playlist_names.length==0)
+    playlist_name = "default";
+  else
+    playlist_name = playlist_names[0];
+  console.log(playlist_names);
+}
+
+async function loadState()
+{
+  const loadState = await window.electronAPI.loadState();
+  track_index = loadState.track_index || 0;
+  isPlaying = loadState.isPlaying || false;
+  isRepeating = loadState.isRepeating || false;
+  volume = loadState.volume;
+}
 
 function updateState()
 {
   const state = 
   {
-    filePaths,
     track_index,
     isPlaying,
     isRepeating,
     volume,
   };
   window.electronAPI.backupState(state);
+
+  const playlist={filePaths};
+  window.electronAPI.backupPlaylist(playlist,playlist_name);
 }
 
 add_btn.addEventListener('click', async () => 
@@ -175,6 +205,29 @@ function updateDisplayList()
     li.appendChild(spa);
     music_list.appendChild(li);
   }
+}
+
+async function updatePlaylistList()
+{
+  const playlistNames = await window.electronAPI.getPlaylists();
+  console.log("FOSMÁNY");
+  console.log(playlistNames);
+  /*if (!block)
+    {
+      playlist_list.style.display = "block";
+    }
+    playlist_list.innerHTML = "";
+    const playlistCount = await window.electronAPI.getPlaylists();
+    for(let i = 0; i < playlistCount; i++) 
+    {
+      let li = document.createElement("li");
+      let spa = document.createElement("span")
+      spa.appendChild(document.createTextNode((playlistCount+1)));
+      li.setAttribute("data-url", i);
+      spa.setAttribute("data-url", i);
+      li.appendChild(spa);
+      playlist_list.appendChild(li);
+    }*/
 }
 
 function disableButtons()

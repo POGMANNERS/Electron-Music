@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Suse';
+  src: url('./assets/SuseFont/SUSE-VariableFont_wght.ttf') format('truetype');
+  font-weight: medium;
+  font-style: normal;
+}
+
 body {
   display: flex;
   justify-content: center;
@@ -8,6 +15,7 @@ body {
   --body-color: lightgreen;
   background-color: var(--body-color);
   transition: background-color 2s;
+  font-family: 'Suse', sans-serif;
 }
 
 ol {
@@ -113,11 +121,14 @@ ol {
   flex-direction: column;
   justify-content: center;
   margin-top: 25px;
+
+  font-family:'Suse';
 }
   
 .now-playing {
   font-size: 3rem;
-  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-family: 'Suse', sans-serif;
+  /*font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;*/
   text-align: center;
   display: inline-block;
 }
