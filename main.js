@@ -34,18 +34,20 @@ app.whenReady().then(() =>
   {
     createWindow();
 
-    ipcMain.handle('filePath-to-base64', async (event, filePath) => 
+    ipcMain.handle('filePath-to-file', async (event, filePaths) => 
     {
-        console.log('Received file path: ', filePath);
-        if (!fs.existsSync(filePath)) 
+        const fileBuffers = [];
+        for (const filePath of filePaths)
         {
-          throw new Error('Invalid file path: ', filePath);
+            console.log('Received file path: ', filePath);
+            if (!fs.existsSync(filePath)) 
+            {
+            throw new Error('Invalid file path: ', filePath);
+            }
+            fileBuffers.push(fs.readFileSync(filePath));
         }
-        const fileBuffer = fs.readFileSync(filePath);
-        return fileBuffer.toString('base64');
+        return fileBuffers;
     });
-    
-
     
 
     ipcMain.handle('open-file-dialog', async () =>

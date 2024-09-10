@@ -54,11 +54,16 @@ document.addEventListener("DOMContentLoaded", async() =>
       updateDisplayList();
       loadTrack(track_index);
       pauseTrack();
-      if (isRepeating){repeatTrack();}
+
+      if (isRepeating)
+      {
+        isRepeating=false;
+        repeatTrack();
+      }
+      
       volume_slider.value=volume;
       volume_slider.textContent=volume;
       setVolume();
-      files = [];
     }
     enableButtons();
 });
@@ -94,24 +99,24 @@ add_btn.addEventListener('click', async () =>
     pauseTrack();
     updateState();
 
-    files = [];
-   enableButtons(); 
+    enableButtons(); 
   });
 
 async function loadUpFiles()
 {
+  files = [];
   try
   {
-    for (let filePath of filePaths) {
-      filePath = String(filePath);
-
-      const base64Data = await window.electronAPI.filePathToBase64(filePath);
-      
-      const fileBlob = new Blob([Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))], { type: 'audio/mpeg' });
-      const fileName = filePath.split('\\').pop();
-      const file = new File([fileBlob], fileName, { type: 'audio/mpeg' });
-
+    const fileBuffers = await window.electronAPI.filePathToFile(filePaths);
+    let i = 0;
+    for (const fileBuffer of fileBuffers) 
+    {
+      const blob = new Blob([fileBuffer], { type: 'audio/mpeg' });
+      const fileName = filePaths[i].split('\\').pop();
+      const file = new File([blob], fileName, {type: 'audio/mpeg'});
+      //console.log(file);
       files.push(file);
+      i++;
       //console.log('LOAD UP COMPLETE!');
     }
   }
@@ -240,13 +245,12 @@ async function removeTrack()
     now_playing.textContent =  track_index+1 + "/" + (track_list.length-1);
   else
     now_playing.textContent =  track_index + "/" + (track_list.length-1);
-  files = [];
+  files.splice(track_index-1, 1);
+  track_list.splice(track_index-1, 1);
+  storage.splice(track_index-1, 1);
 
-  await loadUpFiles();
-  await updateTrackList();
   updateDisplayList();
-
-  files = [];
+  track_index -= 1;
   updateState();
   if (track_list.length==0)
   {
