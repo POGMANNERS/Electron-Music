@@ -10,17 +10,17 @@
     "start": "electron .",
     "dist": "electron-builder"
   },
-  "build": 
-  {
+  "build": {
     "appId": "com.adamakos.musicwall",
     "productName": "Music Wall",
     "files": [
-      "dist/**/*",
+      "**/*",
       "node_modules/**/*",
-      "!**/.git/**/*" 
+      "!**/.git/**/*",
+      "!.gitignore"
     ],
     "nsis": {
-      "oneClick": true, 
+      "oneClick": true,
       "allowToChangeInstallationDirectory": true,
       "perMachine": true
     },
@@ -38,4 +38,3 @@
     }
   }
 }
-

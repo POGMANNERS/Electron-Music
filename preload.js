@@ -2,7 +2,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 
-contextBridge.exposeInMainWorld('electronAPI', {
+contextBridge.exposeInMainWorld('electronAPI', 
+{
   backupState: (state) => ipcRenderer.invoke('backup-state', state),
   loadState: () => ipcRenderer.invoke('load-state'),
   openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),

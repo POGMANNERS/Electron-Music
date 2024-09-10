@@ -46,11 +46,7 @@ document.addEventListener("DOMContentLoaded", async() =>
     isPlaying = loadState.isPlaying || false;
     isRepeating = loadState.isRepeating || false;
     volume = loadState.volume;
-    //seek = loadState.seek;
-    //duration = Math.floor(loadState.duration);
 
-    //console.log('isRepeat: ',isRepeating);
-    //console.log('FilePaTHS: ',filePaths);
     if (filePaths.length!=0)
     {
       await loadUpFiles();
@@ -64,10 +60,6 @@ document.addEventListener("DOMContentLoaded", async() =>
       setVolume();
       files = [];
     }
-    else
-    {
-      //console.log('filePaths: ',filePaths);
-    }
     enableButtons();
 });
 
@@ -80,8 +72,6 @@ function updateState()
     isPlaying,
     isRepeating,
     volume,
-    //seek,
-    //duration,
   };
   window.electronAPI.backupState(state);
 }
@@ -94,7 +84,7 @@ add_btn.addEventListener('click', async () =>
     {
       filePaths.push(temp);
     }
-    console.log('File Paths: ',filePaths);
+    //console.log('File Paths: ',filePaths);
     
     await loadUpFiles();
 
@@ -114,18 +104,12 @@ async function loadUpFiles()
   {
     for (let filePath of filePaths) {
       filePath = String(filePath);
-      //console.log("File path:", filePath, 'TYPE: ',filePath.typeof);
 
-      
-      // Get the base64 string from the main process
       const base64Data = await window.electronAPI.filePathToBase64(filePath);
       
-      // Convert base64 to Blob
       const fileBlob = new Blob([Uint8Array.from(atob(base64Data), c => c.charCodeAt(0))], { type: 'audio/mpeg' });
-      const fileName = filePath.split('\\').pop(); // Extract file name from the path
+      const fileName = filePath.split('\\').pop();
       const file = new File([fileBlob], fileName, { type: 'audio/mpeg' });
-      
-      //console.log("File object:", file);
 
       files.push(file);
       //console.log('LOAD UP COMPLETE!');
@@ -133,14 +117,6 @@ async function loadUpFiles()
   }
   catch (error) {console.error('Error with loadUpFiles: ', error);}
 }
-
-/*document.querySelector("#input").addEventListener("change", async (event) => {
-  await updateTrackList(event);
-  updateDisplayList();
-  loadTrack(track_index);
-  pauseTrack();
-  updateState();
-});*/
 
 document.querySelector("#songlist").addEventListener("click", function(e) {
   track_index = parseInt(e.target.dataset.url);
@@ -160,14 +136,11 @@ async function updateTrackList()
   track_list = [];
   for (const file of files) 
     {
-    //console.log('TRACKLISTFILE',file)
     await new Promise((resolve) => {
       jsmediatags.read(file, {
         onSuccess: (tag) => {
           addTrack(getTitle(tag, file.name), getArtist(tag), getPicture(tag));
-          //console.log('FILE IN STORAGE: ',file);
           storage.push(file);
-          //console.log('STORAGE IS COMPLETE!');
           resolve();
         },
         onError: (error) => {
@@ -246,8 +219,7 @@ function getPicture(tag) {
     }
     return `url(data:${format};base64,${window.btoa(base64String)})`;
   } else {
-    /*return `url("vinyl.gif")`;*/
-    return `url("screenshot_20221030_010306.png")`;
+    return `url("vinyl.gif")`;
   }
 }
 
@@ -297,7 +269,6 @@ function loadTrack(track_index) {
     track_art.style.backgroundImage = track_list[track_index].image;
     track_name.textContent = track_list[track_index].name;
     track_artist.textContent = track_list[track_index].artist;
-    //now_playing.textContent = "Éppen lejátszva: " + (track_index + 1) + ". a " + track_list.length + "-ből";
     now_playing.textContent =  (track_index + 1) + "/" + track_list.length;
    
     updateTimer = setInterval(seekUpdate, 1000);
@@ -315,16 +286,6 @@ function random_bg_color() {
     let bgColor = "rgb(" + red + ", " + green + ", " + blue + ")";
    
     document.body.style.background = bgColor;
-
-    /*if (!firstTime)
-      {
-        console.log('POGGERS');
-        firstTime = 1;
-        seek_slider.value=seek;
-        seek_slider.textContent=seek;
-        seekTo();
-        seekUpdate();
-      }*/
 }
 
 function resetValues() {
@@ -395,19 +356,15 @@ function repeatTrack() {
   updateState();
 }
 
-function seekTo() {
+function seekTo() 
+{
     let seekto = curr_track.duration * (seek_slider.value / 100);
-    //console.log('DURATION: ',curr_track.duration,' SEEK SLIDER VALUE: ',seek_slider.value);
     curr_track.currentTime = seekto;
-
-    /*seek=seek_slider.value;
-    duration=curr_track.duration;
-    updateState();*/
 }
    
 function setVolume() {
     curr_track.volume = volume_slider.value / 100;
-    
+
     volume = volume_slider.value;
     updateState();
 }
@@ -431,8 +388,5 @@ function seekUpdate() {
    
       curr_time.textContent = currentMinutes + ":" + currentSeconds;
       total_duration.textContent = durationMinutes + ":" + durationSeconds;
-
-      //seek=seek_slider.value;
-      //duration=curr_track.duration;
     }
 }
