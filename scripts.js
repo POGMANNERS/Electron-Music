@@ -47,6 +47,8 @@ document.addEventListener("DOMContentLoaded", async() =>
     isRepeating = loadState.isRepeating || false;
     volume = loadState.volume;
 
+    console.log("TRACK_INDEX: ", track_index);
+
     if (filePaths.length!=0)
     {
       await loadUpFiles();
@@ -60,7 +62,7 @@ document.addEventListener("DOMContentLoaded", async() =>
         isRepeating=false;
         repeatTrack();
       }
-      
+
       volume_slider.value=volume;
       volume_slider.textContent=volume;
       setVolume();
@@ -92,7 +94,6 @@ add_btn.addEventListener('click', async () =>
     //console.log('File Paths: ',filePaths);
     
     await loadUpFiles();
-
     await updateTrackList();
     updateDisplayList();
     loadTrack(track_index);
@@ -239,22 +240,26 @@ function addTrack(name, artist, image) {
 async function removeTrack()
 {
   disableButtons();
-  nextTrack();
-  filePaths.splice(track_index-1, 1);
-  if (track_index==0)
-    now_playing.textContent =  track_index+1 + "/" + (track_list.length-1);
-  else
-    now_playing.textContent =  track_index + "/" + (track_list.length-1);
-  files.splice(track_index-1, 1);
-  track_list.splice(track_index-1, 1);
-  storage.splice(track_index-1, 1);
 
-  updateDisplayList();
-  track_index -= 1;
+  filePaths.splice(track_index, 1);
+  files.splice(track_index, 1);
+  track_list.splice(track_index, 1);
+  storage.splice(track_index, 1);
+
+  if(track_index == track_list.length)
+    track_index = 0;
+
   updateState();
   if (track_list.length==0)
   {
     location.reload();
+  }
+  else
+  {
+    loadTrack(track_index);
+    playTrack();
+    updateDisplayList();
+  
   }
   enableButtons();
 }
@@ -305,12 +310,15 @@ function playpauseTrack() {
     else pauseTrack();
 }
     
-function playTrack() {
-curr_track.play();
-isPlaying = true;
-playpause_btn.innerHTML = '<i class="fa fa-pause-circle fa-5x"></i>';
+function playTrack() 
+{
+  console.log("TRACK_INDEX: ", track_index);
 
-updateState();
+  curr_track.play();
+  isPlaying = true;
+  playpause_btn.innerHTML = '<i class="fa fa-pause-circle fa-5x"></i>';
+
+  updateState();
 }
 
 function pauseTrack() {
@@ -321,18 +329,22 @@ playpause_btn.innerHTML = '<i class="fa fa-play-circle fa-5x"></i>';
 updateState();
 }
 
-function nextTrack() {
-if (!isRepeating) {
-  if (track_index < track_list.length - 1)
-    track_index += 1;
-  else track_index = 0;
+function nextTrack() 
+{
+  if (!isRepeating) 
+  {
+    if (track_index < track_list.length - 1)
+      track_index += 1;
+    else track_index = 0;
 
-  loadTrack(track_index);
-  playTrack();
-} else {
-  curr_track.currentTime = 0;
-  playTrack();
-}
+    loadTrack(track_index);
+    playTrack();
+  }
+  else 
+  {
+    curr_track.currentTime = 0;
+    playTrack();
+  }
 }
 
 function prevTrack() {
