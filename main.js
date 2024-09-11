@@ -17,8 +17,8 @@ let mainWindow;
 function createWindow()
 {
     const mainWindow = new BrowserWindow({
-        width: 800,
-        height: 1000,
+        width: 1500,
+        height: 1200,
         webPreferences: 
         {
             preload: path.join(__dirname, 'preload.js'), 
@@ -92,7 +92,8 @@ app.whenReady().then(() =>
     {
         try 
         {
-            const playlistFilePath = path.join(dataPath, playlist_name.stringify, '-playlist.json');
+            const playlistFilePath = path.join(dataPath, playlist_name + '-playlist.json');
+            console.log("Path: " + playlistFilePath);
             fs.writeFileSync(playlistFilePath, JSON.stringify(playlist, null, 2));
         } 
         catch (err) 
@@ -105,7 +106,7 @@ app.whenReady().then(() =>
     {
         try 
         {
-            playlistFilePath = path.join(dataPath, playlist_name.stringify,'-playlist.json');
+            playlistFilePath = path.join(dataPath, playlist_name + '-playlist.json');
             const data = fs.readFileSync(playlistFilePath);
             return JSON.parse(data);
         } 
@@ -125,6 +126,7 @@ app.whenReady().then(() =>
             for (let i = 0; i<playlists.length;i++)
             {
                 playlists[i] = playlists[i].slice(0,-14);
+                console.log(i + ": " + playlists[i] + " from " + playlists.length)
             }
             return playlists;
         }

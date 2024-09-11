@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async() =>
     await loadPlaylist();
     updatePlaylistList();
 
-    if (filePaths.length!=0)
+    if (filePaths.length != 0)
     {
       await loadUpFiles();
       await updateTrackList();
@@ -60,12 +60,12 @@ document.addEventListener("DOMContentLoaded", async() =>
 
       if (isRepeating)
       {
-        isRepeating=false;
+        isRepeating = false;
         repeatTrack();
       }
 
-      volume_slider.value=volume;
-      volume_slider.textContent=volume;
+      volume_slider.value = volume;
+      volume_slider.textContent = volume;
       setVolume();
     }
 
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", async() =>
 
 async function loadPlaylist()
 {
-  console.log("MR: UNDEFINED "+playlist_name);
+  //console.log("MR: UNDEFINED "+playlist_name);
   const loadPlaylist = await window.electronAPI.loadPlaylist(playlist_name);
   filePaths = loadPlaylist.filePaths || [];
 }
@@ -109,8 +109,8 @@ function updateState()
   };
   window.electronAPI.backupState(state);
 
-  const playlist={filePaths};
-  window.electronAPI.backupPlaylist(playlist,playlist_name);
+  const playlist = {filePaths};
+  window.electronAPI.backupPlaylist(playlist, playlist_name);
 }
 
 add_btn.addEventListener('click', async () => 
@@ -209,25 +209,25 @@ function updateDisplayList()
 
 async function updatePlaylistList()
 {
-  const playlistNames = await window.electronAPI.getPlaylists();
-  console.log("FOSMÁNY");
-  console.log(playlistNames);
-  /*if (!block)
+  //const playlistNames = await window.electronAPI.getPlaylists();
+  //console.log("FOSMÁNY");
+  //console.log(playlistNames);
+  if (!block)
     {
       playlist_list.style.display = "block";
     }
     playlist_list.innerHTML = "";
     const playlistCount = await window.electronAPI.getPlaylists();
-    for(let i = 0; i < playlistCount; i++) 
+    for(let i = 0; i < playlistCount.length; i++) 
     {
       let li = document.createElement("li");
       let spa = document.createElement("span")
-      spa.appendChild(document.createTextNode((playlistCount+1)));
+      spa.appendChild(document.createTextNode((playlistCount[i])));
       li.setAttribute("data-url", i);
       spa.setAttribute("data-url", i);
       li.appendChild(spa);
       playlist_list.appendChild(li);
-    }*/
+    }
 }
 
 function disableButtons()
@@ -331,7 +331,7 @@ function loadTrack(track_index) {
     track_art.style.backgroundImage = track_list[track_index].image;
     track_name.textContent = track_list[track_index].name;
     track_artist.textContent = track_list[track_index].artist;
-    now_playing.textContent =  (track_index + 1) + "/" + track_list.length;
+    now_playing.textContent = (track_index + 1) + "/" + track_list.length;
    
     updateTimer = setInterval(seekUpdate, 1000);
 
