@@ -14,7 +14,7 @@ const remove_btn = document.getElementById('remove-track-button');
 let seek_slider = document.querySelector(".seek_slider");
 let seek;
 let volume_slider = document.querySelector(".volume_slider");
-let volume;
+let volume = 50;
 let curr_time = document.querySelector(".current-time");
 let curr;
 let total_duration = document.querySelector(".total-duration");
@@ -23,7 +23,6 @@ let total;
 let files = [];
 let filePaths = [];
 let firstTime;
-let playlist_name = "default";
 let playlist_names = [];
 
 let storage = [];
@@ -63,20 +62,19 @@ document.addEventListener("DOMContentLoaded", async() =>
         isRepeating = false;
         repeatTrack();
       }
-
-      volume_slider.value = volume;
-      volume_slider.textContent = volume;
-      setVolume();
     }
+    volume_slider.value = volume;
+    volume_slider.textContent = volume;
+    setVolume();
 
     enableButtons();
 });
 
 async function loadPlaylist()
 {
-  //console.log("MR: UNDEFINED "+playlist_name);
   const loadPlaylist = await window.electronAPI.loadPlaylist(playlist_name);
   filePaths = loadPlaylist.filePaths || [];
+  track_index = loadPlaylist.track_index || 0;
 }
 
 async function getPlaylists()
@@ -92,7 +90,6 @@ async function getPlaylists()
 async function loadState()
 {
   const loadState = await window.electronAPI.loadState();
-  track_index = loadState.track_index || 0;
   isPlaying = loadState.isPlaying || false;
   isRepeating = loadState.isRepeating || false;
   volume = loadState.volume;
@@ -102,14 +99,17 @@ function updateState()
 {
   const state = 
   {
-    track_index,
     isPlaying,
     isRepeating,
     volume,
   };
   window.electronAPI.backupState(state);
 
-  const playlist = {filePaths};
+  const playlist = 
+  {
+    filePaths,
+    track_index,
+  };
   window.electronAPI.backupPlaylist(playlist, playlist_name);
 }
 
@@ -161,6 +161,26 @@ document.querySelector("#songlist").addEventListener("click", function(e) {
   updateState();
 });
 
+document.querySelector("#playlistlist").addEventListener("click", async function(e) 
+{
+  disableButtons();
+  playlist_name = e.target.dataset.url;
+  await loadPlaylist();
+  if (filePaths.length == 0)
+  {
+    resetPlayer();
+  }
+  else
+  {
+    await loadUpFiles();
+    await updateTrackList();
+    updateDisplayList();
+    loadTrack(track_index);
+    pauseTrack();
+  }
+  enableButtons();
+});
+
 remove_btn.addEventListener('click', function() 
 {
   removeTrack();
@@ -209,22 +229,19 @@ function updateDisplayList()
 
 async function updatePlaylistList()
 {
-  //const playlistNames = await window.electronAPI.getPlaylists();
-  //console.log("FOSMÁNY");
-  //console.log(playlistNames);
   if (!block)
     {
       playlist_list.style.display = "block";
     }
     playlist_list.innerHTML = "";
-    const playlistCount = await window.electronAPI.getPlaylists();
-    for(let i = 0; i < playlistCount.length; i++) 
+    const playlistNames = await window.electronAPI.getPlaylists();
+    for(let i = 0; i < playlistNames.length; i++) 
     {
       let li = document.createElement("li");
       let spa = document.createElement("span")
-      spa.appendChild(document.createTextNode((playlistCount[i])));
-      li.setAttribute("data-url", i);
-      spa.setAttribute("data-url", i);
+      spa.appendChild(document.createTextNode((playlistNames[i])));
+      li.setAttribute("data-url", playlistNames[i]);
+      spa.setAttribute("data-url", playlistNames[i]);
       li.appendChild(spa);
       playlist_list.appendChild(li);
     }
@@ -239,6 +256,7 @@ function disableButtons()
   seek_slider.disabled = true;
   volume_slider.disabled = true;
 }
+
 function enableButtons()
 {
   next_btn.disabled = false;
@@ -305,7 +323,8 @@ async function removeTrack()
   updateState();
   if (track_list.length==0)
   {
-    location.reload();
+    resetValues();
+    //location.reload();
   }
   else
   {
@@ -362,6 +381,21 @@ function resetValues() {
     total_duration.textContent = "00:00";
     seek_slider.value = 0;
 
+}
+
+function resetPlayer() 
+{
+  now_playing.textContent = "0/0";
+  track_art.style.backgroundImage = "url('./cat.gif')";
+  track_name.textContent = "Zeneszám címe";
+  track_artist.textContent = "Előadó neve";
+  curr_time.textContent = "00:00";
+  total_duration.textContent = "00:00";
+  seek_slider.value = 0;
+  storage = [];
+  track_list = [];
+  music_list.innerHTML = "";
+  document.body.style.background = "rgb("+144+", "+238+", "+144+")";
 }
 
 function playpauseTrack() {
