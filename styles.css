@@ -29,6 +29,19 @@ ol {
   position: relative;
   max-height: 75%;
 }
+::-webkit-scrollbar
+{
+  width: 3px;
+}
+::-webkit-scrollbar-track 
+{
+  background: rgba(0,0,0,0.8);
+}
+
+::-webkit-scrollbar-thumb 
+{
+  background: #f50057;
+}
 
 .list ol {
   display: none;
@@ -41,11 +54,16 @@ ol {
   font-size: large;
   position: relative;
   left: 0;
-  color: #000000;
+  color: rgba(0, 0, 0, 0.8);
+  transition: 2s;
   list-style: none;
   margin: 4px 0;
-  border-left: 2px solid #f50057;
+  /*border-left: 2px solid #f50057;*/
+  border-left: 2px solid rgba(0, 0, 0, 0.8);
   transition: 0.5s;
+
+  color: rgba(0, 0, 0, 0.8);
+  transition: 2s;
   cursor: pointer;
 }
 
@@ -98,7 +116,7 @@ ol {
   margin: 15px;
   width: 275px;
   height: 275px;
-  border: 1px solid black;
+  border: 0px solid black;
   /*background-image: url("vinyl.gif");*/
   background-image: url("cat.gif");
   background-position: center;
@@ -128,18 +146,23 @@ ol {
 .now-playing {
   font-size: 3rem;
   font-family: 'Suse', sans-serif;
-  /*font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;*/
   text-align: center;
   display: inline-block;
+  color: rgba(0, 0, 0, 0.8);
+  transition: 2s;
 }
   
 .track-name {
   font-size: 3rem;
+  color: rgba(0, 0, 0, 0.8);
+  transition: 2s;
   text-align: center;
 }
   
 .track-artist {
   font-size: 1.5rem;
+  color: rgba(0, 0, 0, 0.8);
+  transition: 2s;
 }
 
 .buttons {
@@ -162,7 +185,9 @@ ol {
   opacity: 1.0;
 }
 
-.slider_container {
+.slider_container 
+{
+  outline: none;
   width: 400px;
   display: flex;
   justify-content: center;
@@ -174,8 +199,8 @@ ol {
   -moz-appearance: none;
   appearance: none;
   height: 5px;
-  background: black;
-  opacity: 0.7;
+  background: rgba(0,0,0,0.8);
+  /*opacity: 0.7;*/
   -webkit-transition: .2s;
   transition: opacity .2s;
 }
@@ -186,11 +211,12 @@ ol {
   -moz-appearance: none;
   appearance: none;
   width: 15px;
-  height: 15px;
-  background: rgb(182, 182, 182);
+  height: 5px;
+  /*background: rgb(182, 182, 182);*/
+  background: #f50057;
   cursor: pointer;
-  border-radius: 50%;
-  border: 1px solid #000000;
+  border-radius: 0%;
+  border: 1px solid #f50057;
 }
 
 .seek_slider:hover,
@@ -207,8 +233,11 @@ ol {
 }
   
 .current-time,
-.total-duration {
+.total-duration 
+{
   padding: 10px;
+  color: rgba(0, 0, 0, 0.8);
+  transition: 2s;
 }
   
 i.fa-volume-down,
@@ -243,4 +272,11 @@ i.fa-step-backward {
 #open-file-button:hover, #remove-track-button:hover
 {
   background-color: #000000;
+}
+
+.right-side
+{
+  display:flex;
+  flex-direction: column;
+  align-items: center;
 }

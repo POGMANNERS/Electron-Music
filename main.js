@@ -93,7 +93,6 @@ app.whenReady().then(() =>
         try 
         {
             const playlistFilePath = path.join(dataPath, playlist_name + '-playlist.json');
-            console.log("Path: " + playlistFilePath);
             fs.writeFileSync(playlistFilePath, JSON.stringify(playlist, null, 2));
         } 
         catch (err) 

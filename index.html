@@ -20,8 +20,7 @@
 
     <!-- <input type="file" id="input" directory webkitdirectory multiple accept=".mp3"> -->
     <div class="">
-      <button id="open-file-button">+</button>
-      <div class="now-playing">0/0</div>
+      <button id="darkmode-button", onclick="darkmodeToggle()">DM</button>
       <button id="remove-track-button">-</button>
     </div>
     <div class="details">
@@ -63,8 +62,12 @@
     
   </div>
 
-  <div class="list">
-    <ol id="songlist"></ol>
+  <div class="right-side">
+    <div class="now-playing">0/0</div>
+    <div class="list">
+      <ol id="songlist"></ol>
+    </div>
+    <button id="open-file-button">+</button>
   </div>
   
   <script src="scripts.js"></script>

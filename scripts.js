@@ -24,6 +24,8 @@ let files = [];
 let filePaths = [];
 let firstTime;
 let playlist_names = [];
+let playlist_name;
+let darkmode = false;
 
 let storage = [];
 let track_list = [];
@@ -169,6 +171,7 @@ document.querySelector("#playlistlist").addEventListener("click", async function
   if (filePaths.length == 0)
   {
     resetPlayer();
+    //window.reload();
   }
   else
   {
@@ -323,7 +326,7 @@ async function removeTrack()
   updateState();
   if (track_list.length==0)
   {
-    resetValues();
+    resetPlayer();
     //location.reload();
   }
   else
@@ -365,7 +368,6 @@ function random_bg_color() {
     let blue = Math.floor(Math.random() * 256) + 64;
 
     let bgColor;
-    let darkmode = true;
     if (darkmode) {
       bgColor = "rgb(" + red/3 + ", " + green/3 + ", " + blue/3 + ")";
     } else {
@@ -373,6 +375,50 @@ function random_bg_color() {
     }
 
     document.body.style.background = bgColor;
+}
+
+function darkmodeToggle()
+{
+  if (darkmode)
+  {
+    darkmode = false;
+    random_bg_color();
+    lightMode();
+  }
+  else
+  {
+    darkmode = true;
+    random_bg_color();
+    darkMode();
+  }
+}
+
+function lightMode()
+{
+  const listItems = document.querySelectorAll(".list ol li");
+  for (item of listItems)
+  {
+    item.style.color = "rgba(0,0,0,0.8)";
+  }
+  document.querySelector(".track-name").style.color = "rgba(0,0,0,0.8)";
+  document.querySelector(".track-artist").style.color = "rgba(0,0,0,0.8)";
+  document.querySelector(".now-playing").style.color = "rgba(0,0,0,0.8)";
+  document.querySelector(".current-time").style.color = "rgba(0,0,0,0.8)";
+  document.querySelector(".total-duration").style.color = "rgba(0,0,0,0.8)";
+}
+
+function darkMode()
+{
+  const listItems = document.querySelectorAll(".list ol li");
+  for (item of listItems)
+  {
+    item.style.color = "rgba(230,230,230,0.8)";
+  }
+  document.querySelector(".track-name").style.color = "rgba(230,230,230,0.8)";
+  document.querySelector(".track-artist").style.color = "rgba(230,230,230,0.8)";
+  document.querySelector(".now-playing").style.color = "rgba(230,230,230,0.8)";
+  document.querySelector(".current-time").style.color = "rgba(230,230,230,0.8)";
+  document.querySelector(".total-duration").style.color = "rgba(230,230,230,0.8)";
 }
 
 function resetValues() {
@@ -385,6 +431,8 @@ function resetValues() {
 
 function resetPlayer() 
 {
+  pauseTrack();
+  curr_track.src = "";
   now_playing.textContent = "0/0";
   track_art.style.backgroundImage = "url('./cat.gif')";
   track_name.textContent = "Zeneszám címe";
@@ -394,6 +442,8 @@ function resetPlayer()
   seek_slider.value = 0;
   storage = [];
   track_list = [];
+  block = false;
+  music_list.style.display = "none";
   music_list.innerHTML = "";
   document.body.style.background = "rgb("+144+", "+238+", "+144+")";
 }
@@ -405,7 +455,7 @@ function playpauseTrack() {
     
 function playTrack() 
 {
-  console.log("TRACK_INDEX: ", track_index);
+  //console.log("TRACK_INDEX: ", track_index);
 
   curr_track.play();
   isPlaying = true;
