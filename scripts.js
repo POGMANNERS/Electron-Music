@@ -21,11 +21,14 @@ let total_duration = document.querySelector(".total-duration");
 let total;
 
 let files = [];
+let nonShuffledFiles;
 let filePaths = [];
 let firstTime;
 let playlist_names = [];
 let playlist_name;
 let darkmode = false;
+let shuffled = false;
+let shuffleWeight = [];
 
 let storage = [];
 let track_list = [];
@@ -150,8 +153,9 @@ async function loadUpFiles()
       //console.log(file);
       files.push(file);
       i++;
-      //console.log('LOAD UP COMPLETE!');
     }
+    nonShuffledFiles = [...files];
+    console.log('LOAD UP COMPLETE!');
   }
   catch (error) {console.error('Error with loadUpFiles: ', error);}
 }
@@ -442,6 +446,8 @@ function resetPlayer()
   seek_slider.value = 0;
   storage = [];
   track_list = [];
+  track_index = 0;
+  shuffled = false;
   block = false;
   music_list.style.display = "none";
   music_list.innerHTML = "";
@@ -476,10 +482,32 @@ function nextTrack()
 {
   if (!isRepeating) 
   {
-    if (track_index < track_list.length - 1)
-      track_index += 1;
-    else track_index = 0;
+    if (shuffled)
+    {
+      let allShuffled=0;
+      do
+      {
+        let i = Math.floor(Math.random() * files.length);
+        track_index = i;
+        allShuffled += 1;
+      }
+      while (shuffleWeight[track_index] == true && allShuffled != files.length);
+      shuffleWeight[track_index] = true;
 
+      if (allShuffled != files.length)
+      {
+        shuffleWeight.forEach(element => {element=false;});
+        allShuffled = 0;
+      }
+    }
+    else
+    {
+      if (track_index < track_list.length - 1)
+        track_index += 1;
+      else track_index = 0;
+    }
+
+    
     loadTrack(track_index);
     playTrack();
   }
@@ -513,6 +541,52 @@ function repeatTrack() {
     repeatIcon.innerHTML = '<img style="padding: 25px; width: 28px; height: 32px;" src="./NoRepeat.png" alt="Ismétlés">'
   }
   updateState();
+}
+
+function shuffleToggle()
+{
+  if (shuffled)
+    shuffled=false;
+  else
+  {
+    shuffled=true;
+    for(let i = 0;i<files.length;i++)
+    {
+      shuffleWeight[i]=false;
+    }
+  }
+  console.log("shuffled?: ",shuffled);
+  //shuffleTracks();
+}
+
+async function shuffleTracks() //NOT IN USE! I just don't yet wanna remove it. It's cool...
+{
+  disableButtons();
+  files=[];
+  if (shuffled)
+  {
+    const tempFiles = [...nonShuffledFiles];
+    console.log("length: ",tempFiles.length);
+    while (tempFiles.length != 0)
+    {
+      let i = Math.floor(Math.random() * tempFiles.length);
+      //console.log("i: ",i);
+      files.push(tempFiles[i]);
+      //console.log("tempFiles[i] before: ",tempFiles[i]);
+      tempFiles.splice(i,1); 
+      //console.log("tempFiles[i] after: ",tempFiles[i]);
+      console.log("files.length: ",files.length);
+    }
+  }
+  else
+  {
+    files = [...nonShuffledFiles];
+  }
+  await updateTrackList();
+  updateDisplayList();
+  loadTrack(track_index);
+  pauseTrack();
+  enableButtons();
 }
 
 function seekTo() 
