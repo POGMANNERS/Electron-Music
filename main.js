@@ -11,7 +11,6 @@ if (!fs.existsSync(dataPath))
   fs.mkdirSync(dataPath, { recursive: true });
 }
 
-
 let mainWindow;
 
 function createWindow()
@@ -19,6 +18,9 @@ function createWindow()
     const mainWindow = new BrowserWindow({
         width: 1500,
         height: 1200,
+        //autoHideMenuBar: true,
+        //menuBarVisible: false,
+        icon: path.join(__dirname, 'favicon.ico'),
         webPreferences: 
         {
             preload: path.join(__dirname, 'preload.js'), 
@@ -125,7 +127,7 @@ app.whenReady().then(() =>
             for (let i = 0; i<playlists.length;i++)
             {
                 playlists[i] = playlists[i].slice(0,-14);
-                console.log(i + ": " + playlists[i] + " from " + playlists.length)
+                //console.log(i + ": " + playlists[i] + " from " + playlists.length)
             }
             return playlists;
         }
@@ -143,7 +145,7 @@ app.whenReady().then(() =>
             createWindow();
         }
     });
-});
+  });
   app.on('window-all-closed', () => 
   {
     if (process.platform !== 'darwin') 

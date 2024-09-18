@@ -9,7 +9,7 @@ let playpause_btn = document.querySelector(".playpause-track");
 let next_btn = document.querySelector(".next-track");
 let prev_btn = document.querySelector(".prev-track");
 const add_btn = document.getElementById('open-file-button');
-const remove_btn = document.getElementById('remove-track-button');
+//const remove_btn = document.getElementById('remove-track-button');
 
 let seek_slider = document.querySelector(".seek_slider");
 let seek;
@@ -27,6 +27,7 @@ let firstTime;
 let playlist_names = [];
 let playlist_name;
 let darkmode = false;
+document.body.dataset.theme = "light";
 let shuffled = false;
 let shuffleWeight = [];
 
@@ -37,10 +38,12 @@ let isPlaying = false;
 let updateTimer;
 let url = "";
 let music_list = document.querySelector("#songlist");
+music_list.addEventListener('contextmenu', removeTrack)
 let playlist_list = document.querySelector("#playlistlist");
 let isRepeating = false;
 let block = false;
 let repeatIcon = document.querySelector(".repeat-track");
+let shuffleIcon = document.querySelector(".shuffle-tracks");
  
 let curr_track = document.createElement('audio');
 
@@ -51,6 +54,11 @@ document.addEventListener("DOMContentLoaded", async() =>
     await getPlaylists();
 
     await loadState();
+    if (darkmode)
+    {
+      darkmode = false;
+      darkmodeToggle();
+    }
     await loadPlaylist();
     updatePlaylistList();
 
@@ -67,6 +75,10 @@ document.addEventListener("DOMContentLoaded", async() =>
         isRepeating = false;
         repeatTrack();
       }
+    } else {
+      document.querySelector('.darkmode_icon').style.setProperty('--cover-color', 'lightgreen');
+      //document.querySelector('#remove-track-button').style.setProperty('--cover-color', 'lightgreen');
+      document.querySelector('#open-file-button').style.setProperty('--cover-color', 'lightgreen');
     }
     volume_slider.value = volume;
     volume_slider.textContent = volume;
@@ -85,7 +97,7 @@ async function loadPlaylist()
 async function getPlaylists()
 {
   playlist_names = await window.electronAPI.getPlaylists();
-  if (playlist_names.length==0)
+  if (playlist_names.length == 0)
     playlist_name = "default";
   else
     playlist_name = playlist_names[0];
@@ -95,6 +107,7 @@ async function getPlaylists()
 async function loadState()
 {
   const loadState = await window.electronAPI.loadState();
+  darkmode = loadState.darkmode || false;
   isPlaying = loadState.isPlaying || false;
   isRepeating = loadState.isRepeating || false;
   volume = loadState.volume;
@@ -104,6 +117,7 @@ function updateState()
 {
   const state = 
   {
+    darkmode,
     isPlaying,
     isRepeating,
     volume,
@@ -147,7 +161,7 @@ async function loadUpFiles()
     let i = 0;
     for (const fileBuffer of fileBuffers) 
     {
-      const blob = new Blob([fileBuffer], { type: 'audio/mpeg' });
+      const blob = new Blob([fileBuffer], {type: 'audio/mpeg'});
       const fileName = filePaths[i].split('\\').pop();
       const file = new File([blob], fileName, {type: 'audio/mpeg'});
       //console.log(file);
@@ -156,6 +170,8 @@ async function loadUpFiles()
     }
     nonShuffledFiles = [...files];
     console.log('LOAD UP COMPLETE!');
+    playlist_list.style.display = "block";
+    /////////////////////
   }
   catch (error) {console.error('Error with loadUpFiles: ', error);}
 }
@@ -188,10 +204,10 @@ document.querySelector("#playlistlist").addEventListener("click", async function
   enableButtons();
 });
 
-remove_btn.addEventListener('click', function() 
+/*remove_btn.addEventListener('click', function() 
 {
   removeTrack();
-});
+});*/
 
 async function updateTrackList() 
 { 
@@ -236,22 +252,31 @@ function updateDisplayList()
 
 async function updatePlaylistList()
 {
-  if (!block)
-    {
-      playlist_list.style.display = "block";
-    }
-    playlist_list.innerHTML = "";
-    const playlistNames = await window.electronAPI.getPlaylists();
-    for(let i = 0; i < playlistNames.length; i++) 
-    {
+  if (filePaths.length == 0) {
+    playlist_list.style.display = "none";
+  } else {
+    playlist_list.style.display = "block";
+  }
+  const playlistNames = await window.electronAPI.getPlaylists();
+  if (playlistNames.length == 0) {
+    let li = document.createElement("li");
+    let spa = document.createElement("span")
+    spa.appendChild(document.createTextNode(playlist_name));
+    li.setAttribute("data-url", playlist_name);
+    spa.setAttribute("data-url", playlist_name);
+    li.appendChild(spa);
+    playlist_list.appendChild(li);
+  } else {
+    for(let i = 0; i < playlistNames.length; i++) {
       let li = document.createElement("li");
       let spa = document.createElement("span")
-      spa.appendChild(document.createTextNode((playlistNames[i])));
+      spa.appendChild(document.createTextNode(playlistNames[i]));
       li.setAttribute("data-url", playlistNames[i]);
       spa.setAttribute("data-url", playlistNames[i]);
       li.appendChild(spa);
       playlist_list.appendChild(li);
     }
+  }
 }
 
 function disableButtons()
@@ -259,7 +284,7 @@ function disableButtons()
   next_btn.disabled = true;
   prev_btn.disabled = true;
   add_btn.disabled = true;
-  remove_btn.disabled = true;
+  //remove_btn.disabled = true;
   seek_slider.disabled = true;
   volume_slider.disabled = true;
 }
@@ -269,7 +294,7 @@ function enableButtons()
   next_btn.disabled = false;
   prev_btn.disabled = false;
   add_btn.disabled = false;
-  remove_btn.disabled = false;
+  //remove_btn.disabled = false;
   seek_slider.disabled = false;
   volume_slider.disabled = false;
 }
@@ -315,30 +340,38 @@ function addTrack(name, artist, image) {
   });
 }
 
-async function removeTrack()
+async function removeTrack(event)
 {
   disableButtons();
+  console.log("target: " + event.target.getAttribute('data-url'));
+  console.log("index: " + track_index)
+  let target = event.target.getAttribute('data-url');
 
-  filePaths.splice(track_index, 1);
-  files.splice(track_index, 1);
-  track_list.splice(track_index, 1);
-  storage.splice(track_index, 1);
+  filePaths.splice(target, 1);
+  files.splice(target, 1);
+  track_list.splice(target, 1);
+  storage.splice(target, 1);
 
-  if(track_index == track_list.length)
-    track_index = 0;
-
-  updateState();
-  if (track_list.length==0)
-  {
+  if (track_list.length == 0) {
     resetPlayer();
     //location.reload();
-  }
-  else
-  {
-    loadTrack(track_index);
-    playTrack();
+  } else {
+    if (target == track_index) {
+      console.log("INDEX: " + track_index);
+      console.log("LISTLENGth: " + track_list.length);
+      track_index = (track_index == track_list.length) ? 0 : track_index;
+      loadTrack(track_index);
+    } else if (target < track_index) {
+      track_index -= 1;
+    }
+
+    now_playing.textContent = (track_index + 1) + "/" + track_list.length;
+    updateState();
     updateDisplayList();
-  
+
+    if (isPlaying) {
+      playTrack();
+    }
   }
   enableButtons();
 }
@@ -379,6 +412,9 @@ function random_bg_color() {
     }
 
     document.body.style.background = bgColor;
+    document.querySelector('.darkmode_icon').style.setProperty('--cover-color', bgColor);
+    //document.querySelector('#remove-track-button').style.setProperty('--cover-color', bgColor);
+    document.querySelector('#open-file-button').style.setProperty('--cover-color', bgColor);
 }
 
 function darkmodeToggle()
@@ -386,12 +422,14 @@ function darkmodeToggle()
   if (darkmode)
   {
     darkmode = false;
+    document.body.dataset.theme = "light";
     random_bg_color();
     lightMode();
   }
   else
   {
     darkmode = true;
+    document.body.dataset.theme = "dark";
     random_bg_color();
     darkMode();
   }
@@ -451,7 +489,10 @@ function resetPlayer()
   block = false;
   music_list.style.display = "none";
   music_list.innerHTML = "";
-  document.body.style.background = "rgb("+144+", "+238+", "+144+")";
+  document.body.style.background = 'lightgreen';
+  document.querySelector('.darkmode_icon').style.setProperty('--cover-color', 'lightgreen');
+  //document.querySelector('#remove-track-button').style.setProperty('--cover-color', 'lightgreen');
+  document.querySelector('#open-file-button').style.setProperty('--cover-color', 'lightgreen');
 }
 
 function playpauseTrack() {
@@ -459,9 +500,13 @@ function playpauseTrack() {
     else pauseTrack();
 }
     
-function playTrack() 
-{
-  //console.log("TRACK_INDEX: ", track_index);
+function playTrack() {
+  console.log("TRACK_INDEX: ", track_index);
+
+  if(document.getElementById("selected") != null) {
+    document.getElementById("selected").removeAttribute("id");
+  }
+  music_list.children[track_index].setAttribute("id", "selected");
 
   curr_track.play();
   isPlaying = true;
@@ -535,25 +580,25 @@ if (!isRepeating) {
 function repeatTrack() {
   if (!isRepeating) {
     isRepeating = true;
-    repeatIcon.innerHTML = '<img style="padding: 25px; width: 28px; height: 32px;" src="./Repeat.png" alt="Ismétlés">'
+    repeatIcon.innerHTML = '<img style="padding-top: 25px; padding-right: 15px; width: 32px; height: 32px;" src="./Repeat.png" alt="Ismétlés">'
   } else {
     isRepeating = false;
-    repeatIcon.innerHTML = '<img style="padding: 25px; width: 28px; height: 32px;" src="./NoRepeat.png" alt="Ismétlés">'
+    repeatIcon.innerHTML = '<img style="padding-top: 25px; padding-right: 15px; width: 32px; height: 32px;" src="./NoRepeat.png" alt="Ismétlés">'
   }
   updateState();
 }
 
-function shuffleToggle()
-{
-  if (shuffled)
-    shuffled=false;
-  else
-  {
-    shuffled=true;
+function shuffleToggle() {
+  if (!shuffled) {
+    shuffled = true;
+    shuffleIcon.innerHTML = '<img style="padding-top: 25px; padding-left: 15px; width: 32px; height: 32px;" src="./Shuffle.png" alt="Véletlen sorrend">'
     for(let i = 0;i<files.length;i++)
     {
       shuffleWeight[i]=false;
     }
+  } else {
+    shuffled = false;
+    shuffleIcon.innerHTML = '<img style="padding-top: 25px; padding-left: 15px; width: 32px; height: 32px;" src="./NoShuffle.png" alt="Véletlen sorrend">'
   }
   console.log("shuffled?: ",shuffled);
   //shuffleTracks();

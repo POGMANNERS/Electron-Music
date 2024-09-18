@@ -1,7 +1,6 @@
 // preload.js
 const { contextBridge, ipcRenderer } = require('electron');
 
-
 contextBridge.exposeInMainWorld('electronAPI', 
 {
   backupState: (state) => ipcRenderer.invoke('backup-state', state),
