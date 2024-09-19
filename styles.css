@@ -380,7 +380,8 @@ i.fa-step-backward {
   cursor: pointer;
 }
 
-#open-file-button, #remove-track-button {
+#open-file-button, #remove-track-button, #new-playlist-button
+{
   font-size: 35pt;
   width: 50pt;
   height: 50pt;
@@ -394,23 +395,25 @@ i.fa-step-backward {
   display: inline-block;
 }
 
-[data-theme="dark"] #open-file-button {
+[data-theme="dark"] #open-file-button, #new-playlist-button 
+{
   background-color: black;
   opacity: 70%;
 }
 
-#open-file-button:hover, #remove-track-button:hover
+#open-file-button:hover, #remove-track-button:hover, #new-playlist-button:hover
 {
   background-color: black;
   transition: background-color .2s ease;
 }
 
-[data-theme="dark"] #open-file-button:hover {
+[data-theme="dark"] #open-file-button:hover, #new-playlist-button:hover
+{
   opacity: 90%;
   transition: opacity .2s ease;
 }
 
-.right-side
+.right-side, .left-side
 {
   display:flex;
   flex-direction: column;

@@ -90,6 +90,21 @@ app.whenReady().then(() =>
         }
     });
 
+    ipcMain.handle('load-playlist', (event, playlist_name) => 
+        {
+            try 
+            {
+                playlistFilePath = path.join(dataPath, playlist_name + '-playlist.json');
+                const data = fs.readFileSync(playlistFilePath);
+                return JSON.parse(data);
+            } 
+            catch (err) 
+            {
+                console.error('Error reading or parsing JSON file: ', err);
+                return {};
+            }
+        });
+
     ipcMain.handle('backup-playlist', (event, playlist, playlist_name) => 
     {
         try 
@@ -100,21 +115,6 @@ app.whenReady().then(() =>
         catch (err) 
         {
             console.error('Error writing JSON file: ', err);
-        }
-    });
-
-    ipcMain.handle('load-playlist', (event, playlist_name) => 
-    {
-        try 
-        {
-            playlistFilePath = path.join(dataPath, playlist_name + '-playlist.json');
-            const data = fs.readFileSync(playlistFilePath);
-            return JSON.parse(data);
-        } 
-        catch (err) 
-        {
-            console.error('Error reading or parsing JSON file: ', err);
-            return {};
         }
     });
 

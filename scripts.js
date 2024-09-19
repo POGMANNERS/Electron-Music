@@ -4,11 +4,15 @@ let now_playing = document.querySelector(".now-playing");
 let track_art = document.querySelector(".track-art");
 let track_name = document.querySelector(".track-name");
 let track_artist = document.querySelector(".track-artist");
- 
+
+let now_playlist = document.getElementById("now-playlist");  
+let playlist_text = document.getElementById("playlist-text");
+
 let playpause_btn = document.querySelector(".playpause-track");
 let next_btn = document.querySelector(".next-track");
 let prev_btn = document.querySelector(".prev-track");
 const add_btn = document.getElementById('open-file-button');
+const new_playlist_btn = document.getElementById('new-playlist-button');
 //const remove_btn = document.getElementById('remove-track-button');
 
 let seek_slider = document.querySelector(".seek_slider");
@@ -23,9 +27,8 @@ let total;
 let files = [];
 let nonShuffledFiles;
 let filePaths = [];
-let firstTime;
 let playlist_names = [];
-let playlist_name;
+let playlist_name = "|-|-|";
 let darkmode = false;
 document.body.dataset.theme = "light";
 let shuffled = false;
@@ -37,14 +40,16 @@ let track_index = 0;
 let isPlaying = false;
 let updateTimer;
 let url = "";
+let isRepeating = false;
+let block = false;
+let noPlaylists = false;
+
 let music_list = document.querySelector("#songlist");
 music_list.addEventListener('contextmenu', removeTrack)
 let playlist_list = document.querySelector("#playlistlist");
-let isRepeating = false;
-let block = false;
 let repeatIcon = document.querySelector(".repeat-track");
 let shuffleIcon = document.querySelector(".shuffle-tracks");
- 
+
 let curr_track = document.createElement('audio');
 
 document.addEventListener("DOMContentLoaded", async() => 
@@ -59,48 +64,72 @@ document.addEventListener("DOMContentLoaded", async() =>
       darkmode = false;
       darkmodeToggle();
     }
-    await loadPlaylist();
-    updatePlaylistList();
 
-    if (filePaths.length != 0)
+    if(!noPlaylists)
     {
-      await loadUpFiles();
-      await updateTrackList();
-      updateDisplayList();
-      loadTrack(track_index);
-      pauseTrack();
+      await loadPlaylist();
+      updatePlaylistList();
 
-      if (isRepeating)
+      if (filePaths.length != 0)
       {
-        isRepeating = false;
-        repeatTrack();
+        await loadSequence();
+      } 
+      else 
+      {
+        document.querySelector('.darkmode_icon').style.setProperty('--cover-color', 'lightgreen');
+        //document.querySelector('#remove-track-button').style.setProperty('--cover-color', 'lightgreen');
+        document.querySelector('#open-file-button').style.setProperty('--cover-color', 'lightgreen');
       }
-    } else {
-      document.querySelector('.darkmode_icon').style.setProperty('--cover-color', 'lightgreen');
-      //document.querySelector('#remove-track-button').style.setProperty('--cover-color', 'lightgreen');
-      document.querySelector('#open-file-button').style.setProperty('--cover-color', 'lightgreen');
+      enableButtons();
     }
+    else
+    {
+      playlist_text.disabled = false;
+      new_playlist_btn.disabled = false;
+    }
+
+    if (isRepeating)
+    {
+      isRepeating = false;
+      repeatTrack();
+    }
+
     volume_slider.value = volume;
     volume_slider.textContent = volume;
     setVolume();
-
-    enableButtons();
 });
+
+async function loadSequence()
+{
+  await loadUpFiles();
+  await updateTrackList();
+  updateDisplayList();
+  loadTrack(track_index);
+  pauseTrack();
+}
 
 async function loadPlaylist()
 {
-  const loadPlaylist = await window.electronAPI.loadPlaylist(playlist_name);
-  filePaths = loadPlaylist.filePaths || [];
-  track_index = loadPlaylist.track_index || 0;
+  if (playlist_name!="|-|-|")
+  {
+    const loadPlaylist = await window.electronAPI.loadPlaylist(playlist_name);
+    filePaths = loadPlaylist.filePaths || [];
+    track_index = loadPlaylist.track_index || 0;
+    //now_playlist.textContent = playlist_name;
+  }
 }
 
 async function getPlaylists()
 {
   playlist_names = await window.electronAPI.getPlaylists();
   if (playlist_names.length == 0)
-    playlist_name = "default";
+  {
+    playlist_name = "|-|-|";
+    noPlaylists = true;
+  }
   else
     playlist_name = playlist_names[0];
+  
   console.log(playlist_names);
 }
 
@@ -136,21 +165,34 @@ add_btn.addEventListener('click', async () =>
   {
     disableButtons();
     const tempfilePaths = await window.electronAPI.openFileDialog();
-    for (temp of tempfilePaths)
+    console.log(tempfilePaths);
+    if (tempfilePaths.length!=0)
     {
-      filePaths.push(temp);
+      for (temp of tempfilePaths)
+        {
+          filePaths.push(temp);
+        }
+        //console.log('File Paths: ',filePaths);
+        
+        await loadSequence();
+        updateState();
     }
-    //console.log('File Paths: ',filePaths);
-    
-    await loadUpFiles();
-    await updateTrackList();
-    updateDisplayList();
-    loadTrack(track_index);
-    pauseTrack();
-    updateState();
-
     enableButtons(); 
   });
+
+new_playlist_btn.addEventListener('click', async () => 
+{
+  if (playlist_text.value != "")
+  {
+    disableButtons();
+    playlist_name = playlist_text.value;
+    console.log(playlist_text.value);
+    updateState();
+    noPlaylists=false;
+    updatePlaylistList();
+    enableButtons();
+  }
+});
 
 async function loadUpFiles()
 {
@@ -195,11 +237,7 @@ document.querySelector("#playlistlist").addEventListener("click", async function
   }
   else
   {
-    await loadUpFiles();
-    await updateTrackList();
-    updateDisplayList();
-    loadTrack(track_index);
-    pauseTrack();
+    await loadSequence();
   }
   enableButtons();
 });
@@ -287,6 +325,9 @@ function disableButtons()
   //remove_btn.disabled = true;
   seek_slider.disabled = true;
   volume_slider.disabled = true;
+
+  playlist_text.disabled = true;
+  new_playlist_btn.disabled = true;
 }
 
 function enableButtons()
@@ -297,6 +338,9 @@ function enableButtons()
   //remove_btn.disabled = false;
   seek_slider.disabled = false;
   volume_slider.disabled = false;
+
+  playlist_text.disabled = false;
+  new_playlist_btn.disabled = false;
 }
 
 function getTitle(tag, name) {
@@ -534,12 +578,12 @@ function nextTrack()
       {
         let i = Math.floor(Math.random() * files.length);
         track_index = i;
-        allShuffled += 1;
       }
-      while (shuffleWeight[track_index] == true && allShuffled != files.length);
+      while (shuffleWeight[track_index] == true && allShuffled < files.length);
       shuffleWeight[track_index] = true;
+      allShuffled += 1;
 
-      if (allShuffled != files.length)
+      if (allShuffled >= files.length)
       {
         shuffleWeight.forEach(element => {element=false;});
         allShuffled = 0;
@@ -596,6 +640,7 @@ function shuffleToggle() {
     {
       shuffleWeight[i]=false;
     }
+    shuffleWeight[track_index] = true;
   } else {
     shuffled = false;
     shuffleIcon.innerHTML = '<img style="padding-top: 25px; padding-left: 15px; width: 32px; height: 32px;" src="./NoShuffle.png" alt="Véletlen sorrend">'
