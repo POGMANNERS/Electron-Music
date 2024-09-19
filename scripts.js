@@ -45,7 +45,7 @@ let block = false;
 let noPlaylists = false;
 
 let music_list = document.querySelector("#songlist");
-music_list.addEventListener('contextmenu', removeTrack)
+music_list.addEventListener('contextmenu', removeTrack);
 let playlist_list = document.querySelector("#playlistlist");
 let repeatIcon = document.querySelector(".repeat-track");
 let shuffleIcon = document.querySelector(".shuffle-tracks");
@@ -636,27 +636,27 @@ function shuffleToggle() {
   if (!shuffled) {
     shuffled = true;
     shuffleIcon.innerHTML = '<img style="padding-top: 25px; padding-left: 15px; width: 32px; height: 32px;" src="./Shuffle.png" alt="Véletlen sorrend">'
-    for(let i = 0;i<files.length;i++)
+    for(let i = 0; i < files.length; i++)
     {
-      shuffleWeight[i]=false;
+      shuffleWeight[i] = false;
     }
     shuffleWeight[track_index] = true;
   } else {
     shuffled = false;
     shuffleIcon.innerHTML = '<img style="padding-top: 25px; padding-left: 15px; width: 32px; height: 32px;" src="./NoShuffle.png" alt="Véletlen sorrend">'
   }
-  console.log("shuffled?: ",shuffled);
+  console.log("shuffled?: ", shuffled);
   //shuffleTracks();
 }
 
 async function shuffleTracks() //NOT IN USE! I just don't yet wanna remove it. It's cool...
 {
   disableButtons();
-  files=[];
+  files = [];
   if (shuffled)
   {
     const tempFiles = [...nonShuffledFiles];
-    console.log("length: ",tempFiles.length);
+    console.log("length: ", tempFiles.length);
     while (tempFiles.length != 0)
     {
       let i = Math.floor(Math.random() * tempFiles.length);
@@ -665,7 +665,7 @@ async function shuffleTracks() //NOT IN USE! I just don't yet wanna remove it. I
       //console.log("tempFiles[i] before: ",tempFiles[i]);
       tempFiles.splice(i,1); 
       //console.log("tempFiles[i] after: ",tempFiles[i]);
-      console.log("files.length: ",files.length);
+      console.log("files.length: ", files.length);
     }
   }
   else

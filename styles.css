@@ -376,7 +376,9 @@ i.fa-volume-up {
 i.fa-play-circle,
 i.fa-pause-circle,
 i.fa-step-forward,
-i.fa-step-backward {
+i.fa-step-backward,
+.repeat-track,
+.shuffle-tracks {
   cursor: pointer;
 }
 
@@ -390,45 +392,31 @@ i.fa-step-backward {
   margin: 10pt;
   color: var(--cover-color);
   background-color: rgb(44, 44, 44);
-  transition: color 2s ease;
+  transition: color 2s ease, background-color .2s ease, opacity .2s ease;
   cursor: pointer;
   display: inline-block;
 }
 
-[data-theme="dark"] #open-file-button, #new-playlist-button 
-{
+#open-file-button:hover, #remove-track-button:hover {
+  background-color: black;
+}
+
+[data-theme="dark"] #open-file-button {
   background-color: black;
   opacity: 70%;
 }
 
-#open-file-button:hover, #remove-track-button:hover, #new-playlist-button:hover
-{
-  background-color: black;
-  transition: background-color .2s ease;
-}
-
-[data-theme="dark"] #open-file-button:hover, #new-playlist-button:hover
-{
+[data-theme="dark"] #open-file-button:hover {
   opacity: 90%;
-  transition: opacity .2s ease;
 }
 
-.right-side, .left-side
-{
+.right-side {
   display:flex;
   flex-direction: column;
   align-items: center;
   height: 95vh;
   width: 25vw;
   justify-content: center;
-}
-
-.repeat-track {
-  cursor: pointer;
-}
-
-.shuffle-tracks {
-  cursor: pointer;
 }
 
 .button-container {
