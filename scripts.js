@@ -5,7 +5,7 @@ let track_art = document.querySelector(".track-art");
 let track_name = document.querySelector(".track-name");
 let track_artist = document.querySelector(".track-artist");
 
-let now_playlist = document.getElementById("now-playlist");  
+let now_playlist = document.querySelector(".now-playlist");  
 let playlist_text = document.getElementById("playlist-text");
 
 let playpause_btn = document.querySelector(".playpause-track");
@@ -13,7 +13,6 @@ let next_btn = document.querySelector(".next-track");
 let prev_btn = document.querySelector(".prev-track");
 const add_btn = document.getElementById('open-file-button');
 const new_playlist_btn = document.getElementById('new-playlist-button');
-//const remove_btn = document.getElementById('remove-track-button');
 
 let seek_slider = document.querySelector(".seek_slider");
 let seek;
@@ -28,7 +27,7 @@ let files = [];
 let nonShuffledFiles;
 let filePaths = [];
 let playlist_names = [];
-let playlist_name = "|-|-|";
+let playlist_name;
 let darkmode = false;
 document.body.dataset.theme = "light";
 let shuffled = false;
@@ -42,7 +41,7 @@ let updateTimer;
 let url = "";
 let isRepeating = false;
 let block = false;
-let noPlaylists = false;
+let noPlaylists = true;
 
 let music_list = document.querySelector("#songlist");
 music_list.addEventListener('contextmenu', removeTrack);
@@ -65,11 +64,10 @@ document.addEventListener("DOMContentLoaded", async() =>
       darkmodeToggle();
     }
 
-    if(!noPlaylists)
+    if(noPlaylists == false)
     {
       await loadPlaylist();
       updatePlaylistList();
-
       if (filePaths.length != 0)
       {
         await loadSequence();
@@ -77,7 +75,6 @@ document.addEventListener("DOMContentLoaded", async() =>
       else 
       {
         document.querySelector('.darkmode_icon').style.setProperty('--cover-color', 'lightgreen');
-        //document.querySelector('#remove-track-button').style.setProperty('--cover-color', 'lightgreen');
         document.querySelector('#open-file-button').style.setProperty('--cover-color', 'lightgreen');
       }
       enableButtons();
@@ -110,34 +107,34 @@ async function loadSequence()
 
 async function loadPlaylist()
 {
-  if (playlist_name!="|-|-|")
+  if (!noPlaylists)
   {
     const loadPlaylist = await window.electronAPI.loadPlaylist(playlist_name);
     filePaths = loadPlaylist.filePaths || [];
     track_index = loadPlaylist.track_index || 0;
-    //now_playlist.textContent = playlist_name;
+    now_playlist.textContent = playlist_name;
   }
 }
 
 async function getPlaylists()
 {
+  playlist_names = [];
   playlist_names = await window.electronAPI.getPlaylists();
   if (playlist_names.length == 0)
   {
-    playlist_name = "|-|-|";
     noPlaylists = true;
   }
   else
+  {
+    noPlaylists = false;
     playlist_name = playlist_names[0];
-  
-  console.log(playlist_names);
+  }
 }
 
 async function loadState()
 {
   const loadState = await window.electronAPI.loadState();
   darkmode = loadState.darkmode || false;
-  isPlaying = loadState.isPlaying || false;
   isRepeating = loadState.isRepeating || false;
   volume = loadState.volume;
 }
@@ -147,12 +144,14 @@ function updateState()
   const state = 
   {
     darkmode,
-    isPlaying,
     isRepeating,
     volume,
   };
   window.electronAPI.backupState(state);
+}
 
+function updatePlaylist()
+{
   const playlist = 
   {
     filePaths,
@@ -165,30 +164,32 @@ add_btn.addEventListener('click', async () =>
   {
     disableButtons();
     const tempfilePaths = await window.electronAPI.openFileDialog();
-    console.log(tempfilePaths);
     if (tempfilePaths.length!=0)
     {
       for (temp of tempfilePaths)
         {
           filePaths.push(temp);
         }
-        //console.log('File Paths: ',filePaths);
         
         await loadSequence();
         updateState();
+        updatePlaylist();
     }
     enableButtons(); 
   });
 
 new_playlist_btn.addEventListener('click', async () => 
 {
-  if (playlist_text.value != "")
+  if (playlist_text.value != "" && !playlist_names.includes(playlist_text.value, 0))
   {
     disableButtons();
     playlist_name = playlist_text.value;
-    console.log(playlist_text.value);
+    resetPlayer();
     updateState();
-    noPlaylists=false;
+    updatePlaylist();
+    
+    await getPlaylists();
+    loadPlaylist();
     updatePlaylistList();
     enableButtons();
   }
@@ -206,12 +207,11 @@ async function loadUpFiles()
       const blob = new Blob([fileBuffer], {type: 'audio/mpeg'});
       const fileName = filePaths[i].split('\\').pop();
       const file = new File([blob], fileName, {type: 'audio/mpeg'});
-      //console.log(file);
       files.push(file);
       i++;
     }
     nonShuffledFiles = [...files];
-    console.log('LOAD UP COMPLETE!');
+    //console.log('LOAD UP COMPLETE!');
     playlist_list.style.display = "block";
     /////////////////////
   }
@@ -241,11 +241,6 @@ document.querySelector("#playlistlist").addEventListener("click", async function
   }
   enableButtons();
 });
-
-/*remove_btn.addEventListener('click', function() 
-{
-  removeTrack();
-});*/
 
 async function updateTrackList() 
 { 
@@ -290,13 +285,15 @@ function updateDisplayList()
 
 async function updatePlaylistList()
 {
-  if (filePaths.length == 0) {
+  if (playlist_names.length == 0) {
     playlist_list.style.display = "none";
   } else {
     playlist_list.style.display = "block";
   }
+  playlist_list.innerHTML = "";
   const playlistNames = await window.electronAPI.getPlaylists();
-  if (playlistNames.length == 0) {
+  if (playlistNames.length == 0) 
+  {
     let li = document.createElement("li");
     let spa = document.createElement("span")
     spa.appendChild(document.createTextNode(playlist_name));
@@ -304,7 +301,9 @@ async function updatePlaylistList()
     spa.setAttribute("data-url", playlist_name);
     li.appendChild(spa);
     playlist_list.appendChild(li);
-  } else {
+  } 
+  else 
+  {
     for(let i = 0; i < playlistNames.length; i++) {
       let li = document.createElement("li");
       let spa = document.createElement("span")
@@ -387,8 +386,8 @@ function addTrack(name, artist, image) {
 async function removeTrack(event)
 {
   disableButtons();
-  console.log("target: " + event.target.getAttribute('data-url'));
-  console.log("index: " + track_index)
+  //console.log("target: " + event.target.getAttribute('data-url'));
+  //console.log("index: " + track_index)
   let target = event.target.getAttribute('data-url');
 
   filePaths.splice(target, 1);
@@ -401,8 +400,8 @@ async function removeTrack(event)
     //location.reload();
   } else {
     if (target == track_index) {
-      console.log("INDEX: " + track_index);
-      console.log("LISTLENGth: " + track_list.length);
+      //console.log("INDEX: " + track_index);
+      //console.log("LISTLENGth: " + track_list.length);
       track_index = (track_index == track_list.length) ? 0 : track_index;
       loadTrack(track_index);
     } else if (target < track_index) {
@@ -441,6 +440,7 @@ function loadTrack(track_index) {
     curr_track.addEventListener("ended", nextTrack);
    
     random_bg_color();
+    updatePlaylist();
 }
    
 function random_bg_color() {
@@ -526,16 +526,17 @@ function resetPlayer()
   curr_time.textContent = "00:00";
   total_duration.textContent = "00:00";
   seek_slider.value = 0;
+  filePaths = [];
   storage = [];
   track_list = [];
   track_index = 0;
   shuffled = false;
   block = false;
+  playlist_text.value = "";
   music_list.style.display = "none";
   music_list.innerHTML = "";
   document.body.style.background = 'lightgreen';
   document.querySelector('.darkmode_icon').style.setProperty('--cover-color', 'lightgreen');
-  //document.querySelector('#remove-track-button').style.setProperty('--cover-color', 'lightgreen');
   document.querySelector('#open-file-button').style.setProperty('--cover-color', 'lightgreen');
 }
 
@@ -545,7 +546,7 @@ function playpauseTrack() {
 }
     
 function playTrack() {
-  console.log("TRACK_INDEX: ", track_index);
+  //console.log("TRACK_INDEX: ", track_index);
 
   if(document.getElementById("selected") != null) {
     document.getElementById("selected").removeAttribute("id");
@@ -645,38 +646,8 @@ function shuffleToggle() {
     shuffled = false;
     shuffleIcon.innerHTML = '<img style="padding-top: 25px; padding-left: 15px; width: 32px; height: 32px;" src="./NoShuffle.png" alt="Véletlen sorrend">'
   }
-  console.log("shuffled?: ", shuffled);
+  //console.log("shuffled?: ", shuffled);
   //shuffleTracks();
-}
-
-async function shuffleTracks() //NOT IN USE! I just don't yet wanna remove it. It's cool...
-{
-  disableButtons();
-  files = [];
-  if (shuffled)
-  {
-    const tempFiles = [...nonShuffledFiles];
-    console.log("length: ", tempFiles.length);
-    while (tempFiles.length != 0)
-    {
-      let i = Math.floor(Math.random() * tempFiles.length);
-      //console.log("i: ",i);
-      files.push(tempFiles[i]);
-      //console.log("tempFiles[i] before: ",tempFiles[i]);
-      tempFiles.splice(i,1); 
-      //console.log("tempFiles[i] after: ",tempFiles[i]);
-      console.log("files.length: ", files.length);
-    }
-  }
-  else
-  {
-    files = [...nonShuffledFiles];
-  }
-  await updateTrackList();
-  updateDisplayList();
-  loadTrack(track_index);
-  pauseTrack();
-  enableButtons();
 }
 
 function seekTo() 

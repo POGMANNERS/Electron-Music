@@ -397,20 +397,20 @@ i.fa-step-backward,
   display: inline-block;
 }
 
-#open-file-button:hover, #remove-track-button:hover {
+#open-file-button:hover, #remove-track-button:hover, #new-playlist-button:hover {
   background-color: black;
 }
 
-[data-theme="dark"] #open-file-button {
+[data-theme="dark"] #open-file-button, #new-playlist-button {
   background-color: black;
   opacity: 70%;
 }
 
-[data-theme="dark"] #open-file-button:hover {
+[data-theme="dark"] #open-file-button:hover, #new-playlist-button:hover {
   opacity: 90%;
 }
 
-.right-side {
+.right-side, .left-side {
   display:flex;
   flex-direction: column;
   align-items: center;
