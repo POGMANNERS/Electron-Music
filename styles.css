@@ -24,6 +24,11 @@ ol {
   overflow-y: scroll;
 }
 
+.disabled {
+  opacity: 50%;
+  pointer-events: none;
+}
+
 :root {
   --header: rgb(44, 44, 44);
   --page-color-transition: background-color .2s ease, color .2s ease;
@@ -33,122 +38,49 @@ ol {
   --header: whitesmoke;
 }
 
-#darkmode {
-  padding: 0.5em 0.5em;
-  cursor: pointer;
-  width: 40px;
-  height: 40px;
+.input-group {
+  position: relative;
+  opacity: 80%;
+  transition: opacity 0.5s;
+}
+
+.input-group:focus-within {
+  opacity: 100%;
+}
+
+.input-group #new-playlist-text {
+  outline: none;
+  border: 2px solid #dadce0;
+  padding: 10px 13px;
+  font-size: 14px;
+  border-radius: 5px;
+}
+
+.input-group #new-playlist-text + .label {
+  top: -8px;
+  padding: 0 3px;
+  font-size: 14px;
+  color: #8d8d8d;
+}
+
+.input-group #new-playlist-text:focus {
+  border: 2px solid royalblue;
+}
+
+.input-group .label {
+  color: #8d8d8d;
   position: absolute;
-  margin: auto;
-  bottom: 20px;
-  left: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: scale(3);
+  top: 20px;
+  left: 13px;
+  background: #ffffff;
+  border-radius: 5px;
 }
 
-.darkmode_icon {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
-  background: var(--header);
-  transform-origin: center center;
-  transition: transform 0.75s ease-in-out, var(--page-color-transition);
-}
-
-[data-theme="light"] .darkmode_icon:hover, [data-theme="light"] .darkmode_icon:hover .ray {
-  background-color: rgb(30, 30, 30);
-}
-
-[data-theme="dark"] .darkmode_icon:hover {
-  background-color: rgb(180, 180, 180);
-}
-
-.darkmode_icon::after {
-  position: absolute;
-  content: '';
-  width: 16px;
-  height: 16px;
-  left: 8px;
-  bottom: 4px;
-  border-radius: 10px;
-  background-color: var(--cover-color);
-  transform-origin: center center;
-  transition: background-color 2s ease, transform 0.5s ease, left 0.25s ease, bottom 0.25s ease;
-}
-
-.darkmode_icon .ray {
-  position: absolute;
-  left: 7px;
-  top: 7px;
-  width: 6px;
-  height: 6px;
-  border-radius: 6px;
-  background: var(--header);
-  transform-origin: center;
-  transition: transform 0.5s ease-in-out, var(--page-color-transition);
-}
-
-.ray:nth-child(1) {
-  transform: rotate(45deg) translateX(0);
-}
-.ray:nth-child(2) {
-  transform: rotate(90deg) translateX(0);
-}
-.ray:nth-child(3) {
-  transform: rotate(135deg) translateX(0);
-}
-.ray:nth-child(4) {
-  transform: rotate(180deg) translateX(0);
-}
-.ray:nth-child(5) {
-  transform: rotate(225deg) translateX(0);
-}
-.ray:nth-child(6) {
-  transform: rotate(270deg) translateX(0);
-}
-.ray:nth-child(7) {
-  transform: rotate(315deg) translateX(0);
-}
-.ray:nth-child(8) {
-  transform: rotate(360deg) translateX(0);
-}
-
-[data-theme="dark"] {
-  & .darkmode_icon {
-    transform: scale(0.6);
-  }
-  & .darkmode_icon::after {
-    left: 15px;
-    bottom: 8px;
-    transform: scale(0);
-  }
-  & .ray:nth-child(1) {
-    transform: rotate(45deg) translateX(-16px);
-  }
-  & .ray:nth-child(2) {
-    transform: rotate(90deg) translateX(-16px);
-  }
-  & .ray:nth-child(3) {
-    transform: rotate(135deg) translateX(-16px);
-  }
-  & .ray:nth-child(4) {
-    transform: rotate(180deg) translateX(-16px);
-  }
-  & .ray:nth-child(5) {
-    transform: rotate(225deg) translateX(-16px);
-  }
-  & .ray:nth-child(6) {
-    transform: rotate(270deg) translateX(-16px);
-  }
-  & .ray:nth-child(7) {
-    transform: rotate(315deg) translateX(-16px);
-  }
-  & .ray:nth-child(8) {
-    transform: rotate(360deg) translateX(-16px);
-  }
+.input-group #new-playlist-text:focus + .label {
+  top: -8px;
+  padding: 0 3px;
+  font-size: 14px;
+  color: royalblue;
 }
 
 ::-webkit-scrollbar
@@ -195,7 +127,7 @@ ol {
   cursor: pointer;
 }
 
-.list ol li:hover, #selected {
+.list ol li:hover, .list ol .selected {
   left: 10px;
 }
 
@@ -208,11 +140,11 @@ ol {
   transition: 0.5s;
 }
 
-.list ol li:hover span, #selected span {
+.list ol li:hover span, .list ol .selected span {
   color: rgb(240, 240, 240);
 }
 
-.list ol li span:before, #selected span:before {
+.list ol li span:before, .list ol .selected span:before {
   counter-increment: li;
   content: counter(li, decimal-leading-zero);
 	color: red;
@@ -220,12 +152,12 @@ ol {
   transition: 0.5s;
 }
 
-.list ol li:hover span:before, #selected span:before {
+.list ol li:hover span:before, .list ol .selected span:before {
   color: black;
   transition: 0.5s;
 }
 
-.list ol li:before, #selected:before {
+.list ol li:before, .list ol .selected:before {
   content: "";
   position: absolute;
   width: 100%;
@@ -236,7 +168,7 @@ ol {
   transition: 0.5s;
 }
 
-.list ol li:hover:before, #selected:before {
+.list ol li:hover:before, .list ol .selected:before {
   transform: scaleX(1);
 }
 
@@ -382,7 +314,7 @@ i.fa-step-backward,
   cursor: pointer;
 }
 
-#open-file-button, #remove-track-button, #new-playlist-button
+#open-file-button, #new-playlist-button
 {
   font-size: 35pt;
   width: 50pt;
@@ -390,6 +322,7 @@ i.fa-step-backward,
   border-radius: 100%;
   border: 0pt;
   margin: 10pt;
+  --cover-color: lightgreen;
   color: var(--cover-color);
   background-color: rgb(44, 44, 44);
   transition: color 2s ease, background-color .2s ease, opacity .2s ease;
@@ -397,16 +330,16 @@ i.fa-step-backward,
   display: inline-block;
 }
 
-#open-file-button:hover, #remove-track-button:hover, #new-playlist-button:hover {
+#open-file-button:hover, #new-playlist-button:hover {
   background-color: black;
 }
 
-[data-theme="dark"] #open-file-button, #new-playlist-button {
+[data-theme="dark"] #open-file-button, [data-theme="dark"] #new-playlist-button {
   background-color: black;
   opacity: 70%;
 }
 
-[data-theme="dark"] #open-file-button:hover, #new-playlist-button:hover {
+[data-theme="dark"] #open-file-button:hover, [data-theme="dark"] #new-playlist-button:hover {
   opacity: 90%;
 }
 
@@ -421,4 +354,125 @@ i.fa-step-backward,
 
 .button-container {
   display: flex;
+}
+
+#darkmode {
+  padding-bottom: 0.5em;
+  padding-left: 0.5em;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  margin: auto;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(3);
+}
+
+.darkmode_icon {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--header);
+  --cover-color: lightgreen;
+  transform-origin: center center;
+  transition: transform 0.75s ease-in-out, var(--page-color-transition);
+}
+
+[data-theme="light"] .darkmode_icon:hover, [data-theme="light"] .darkmode_icon:hover .ray {
+  background-color: rgb(30, 30, 30);
+}
+
+[data-theme="dark"] .darkmode_icon:hover {
+  background-color: rgb(180, 180, 180);
+}
+
+.darkmode_icon::after {
+  position: absolute;
+  content: '';
+  width: 16px;
+  height: 16px;
+  left: 8px;
+  bottom: 4px;
+  border-radius: 10px;
+  background-color: lightgreen;
+  background-color: var(--cover-color);
+  transform-origin: center center;
+  transition: background-color 2s ease, transform 0.5s ease, left 0.25s ease, bottom 0.25s ease;
+}
+
+.darkmode_icon .ray {
+  position: absolute;
+  left: 7px;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 6px;
+  background: var(--header);
+  transform-origin: center;
+  transition: transform 0.5s ease-in-out, var(--page-color-transition);
+}
+
+.ray:nth-child(1) {
+  transform: rotate(45deg) translateX(0);
+}
+.ray:nth-child(2) {
+  transform: rotate(90deg) translateX(0);
+}
+.ray:nth-child(3) {
+  transform: rotate(135deg) translateX(0);
+}
+.ray:nth-child(4) {
+  transform: rotate(180deg) translateX(0);
+}
+.ray:nth-child(5) {
+  transform: rotate(225deg) translateX(0);
+}
+.ray:nth-child(6) {
+  transform: rotate(270deg) translateX(0);
+}
+.ray:nth-child(7) {
+  transform: rotate(315deg) translateX(0);
+}
+.ray:nth-child(8) {
+  transform: rotate(360deg) translateX(0);
+}
+
+[data-theme="dark"] {
+  & .darkmode_icon {
+    transform: scale(0.6);
+  }
+  & .darkmode_icon::after {
+    left: 15px;
+    bottom: 8px;
+    transform: scale(0);
+  }
+  & .ray:nth-child(1) {
+    transform: rotate(45deg) translateX(-16px);
+  }
+  & .ray:nth-child(2) {
+    transform: rotate(90deg) translateX(-16px);
+  }
+  & .ray:nth-child(3) {
+    transform: rotate(135deg) translateX(-16px);
+  }
+  & .ray:nth-child(4) {
+    transform: rotate(180deg) translateX(-16px);
+  }
+  & .ray:nth-child(5) {
+    transform: rotate(225deg) translateX(-16px);
+  }
+  & .ray:nth-child(6) {
+    transform: rotate(270deg) translateX(-16px);
+  }
+  & .ray:nth-child(7) {
+    transform: rotate(315deg) translateX(-16px);
+  }
+  & .ray:nth-child(8) {
+    transform: rotate(360deg) translateX(-16px);
+  }
 }

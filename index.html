@@ -3,20 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'">
   <title>Music Wall</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
   <link rel="stylesheet" type="text/css" href="./styles.css">
   <link rel="icon" type="image/x-icon" href="./favicon.ico">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+  <script src="./assets/jsmediatags.min.js"></script>
 </head>
 <body>
 
   <div class="left-side">
-    <div class="now-playlist"></div>
     <div class="list">
       <ol id="playlistlist"></ol>
     </div>
-    <input type="text" id="playlist-text">
+    <div class="input-group">
+      <input type="text" spellcheck="false" id="new-playlist-text" placeholder="Ide írj...">
+      <label for="new-playlist-text" class="label">Új lista hozzáadása</label>
+    </div>
     <button id="new-playlist-button">+</button>
   </div>
 
@@ -34,36 +37,34 @@
     </div>
 
     <div class="buttons">
-      <div class="prev-track" onclick="prevTrack()">
+      <div class="prev-track">
         <i class="fa fa-step-backward fa-2x"></i>
       </div>
-      <div class="playpause-track" onclick="playpauseTrack()">
+      <div class="playpause-track">
         <i class="fa fa-play-circle fa-5x"></i>
       </div>
-      <div class="next-track" onclick="nextTrack()">
+      <div class="next-track">
         <i class="fa fa-step-forward fa-2x"></i>
       </div>
     </div>
 
     <div class="slider_container">
       <div class="current-time">00:00</div>
-      <input type="range" min="1" max="100"
-        value="0" class="seek_slider" oninput="seekTo()">
+      <input type="range" min="0" max="100" value="0" class="seek_slider">
       <div class="total-duration">00:00</div>
     </div>
 
     <div class="slider_container">
       <i class="fa fa-volume-down"></i>
-      <input type="range" min="0" max="100"
-        value="100" class="volume_slider" oninput="setVolume()">
+      <input type="range" min="0" max="100" value="100" class="volume_slider">
       <i class="fa fa-volume-up"></i>
     </div>
 
     <div class="button-container">
-      <div class="repeat-track" onclick="repeatTrack()">
+      <div class="repeat-track">
         <img style="padding-top: 25px; padding-right: 15px; width: 32px; height: 32px;" src="./NoRepeat.png" alt="Ismétlés">
       </div>
-      <div class="shuffle-tracks" onclick="shuffleToggle()">
+      <div class="shuffle-tracks">
         <img style="padding-top: 25px; padding-left: 15px; width: 32px; height: 32px;" src="./NoShuffle.png" alt="Véletlen sorrend">
       </div>
     </div>
@@ -78,7 +79,7 @@
     <button id="open-file-button">+</button>
   </div>
 
-  <span id="darkmode" role="button" tabIndex="0" onClick="darkmodeToggle()">
+  <span id="darkmode" role="button" tabIndex="0">
     <div class="darkmode_icon">
       <span class="ray"></span>
       <span class="ray"></span>

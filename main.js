@@ -49,6 +49,7 @@ app.whenReady().then(() =>
             }
             fileBuffers.push(fs.readFileSync(filePath));
         }
+        console.log("");
         return fileBuffers;
     });
     
