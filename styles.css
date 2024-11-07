@@ -15,6 +15,7 @@ body {
   background-color: lightgreen;
   transition: background-color 2s ease;
   font-family: 'Suse', sans-serif;
+  user-select: none;
 }
 
 ol {

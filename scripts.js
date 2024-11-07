@@ -111,6 +111,8 @@ async function loadPlaylist()
       }
     });
   }
+  shuffled = true;
+  shuffleToggle();
 }
 
 async function getPlaylists()
@@ -225,6 +227,9 @@ async function loadUpFiles() {
 }
 
 document.querySelector("#songlist").addEventListener("click", function(e) {
+  if (!e.target.dataset.url)
+    return;
+
   track_index = parseInt(e.target.dataset.url);
   loadTrack(track_index);
   playTrack();
@@ -232,7 +237,12 @@ document.querySelector("#songlist").addEventListener("click", function(e) {
 });
 
 document.querySelector("#playlistlist").addEventListener("click", async function(e) {
-  if (e.target.dataset.url != playlist_name) {
+  //console.log("playlist target: ",e.target.dataset.url);
+  if (!e.target.dataset.url)
+    return;
+  
+  if (e.target.dataset.url != playlist_name) 
+  {
     disableButtons();
     playlist_name = e.target.dataset.url;
 
@@ -364,10 +374,18 @@ function addTrack(name, artist, image) {
 music_list.addEventListener('contextmenu', removeTrack);
 
 async function removeTrack(event) {
-  disableButtons();
   //console.log("target: " + event.target.getAttribute('data-url'));
   //console.log("tindex: " + track_index)
   let target = event.target.getAttribute('data-url');
+
+  //console.log("Remove target: ",target);
+  if (!target)
+    {
+      enableButtons();
+      return;
+    }
+  disableButtons();
+
 
   filePaths.splice(target, 1);
   files.splice(target, 1);
@@ -518,7 +536,6 @@ function resetPlayer() {
   storage = [];
   track_list = [];
   track_index = 0;
-  shuffled = false;
   block = false;
   playlist_text.value = "";
   music_list.style.display = "none";

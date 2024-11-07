@@ -18,8 +18,8 @@ function createWindow()
     const mainWindow = new BrowserWindow({
         width: 1500,
         height: 1200,
-        //autoHideMenuBar: true,
-        //menuBarVisible: false,
+        autoHideMenuBar: true,
+        menuBarVisible: false,
         icon: path.join(__dirname, 'favicon.ico'),
         webPreferences: 
         {
@@ -59,7 +59,7 @@ app.whenReady().then(() =>
         const result = await dialog.showOpenDialog({
             properties: ['openFile','multiSelections'],
             filters: [
-                { name: 'Audio Files', extensions: ['mp3', 'wav']}
+                { name: 'Audio Files', extensions: ['mp3', 'flac']}
             ]
         });
         return result.filePaths;

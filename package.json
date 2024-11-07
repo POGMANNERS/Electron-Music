@@ -4,8 +4,9 @@
     "electron-builder": "^24.13.3"
   },
   "name": "music-wall",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "main": "main.js",
+  "icon": "favicon.ico",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder"
