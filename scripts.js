@@ -172,12 +172,8 @@ new_playlist_btn.addEventListener("click", async () => {
     updatePlaylistList();
     playlist_name = temp;
     loadPlaylist();
-    if (filePaths.length != 0) {
-      enableButtons();
-    } else {
-      document.querySelector(".left-side").classList.remove("disabled");
-      document.querySelector(".right-side").classList.remove("disabled");
-    }
+    document.querySelector(".left-side").classList.remove("disabled");
+    document.querySelector(".right-side").classList.remove("disabled");
   }
 });
 
@@ -205,6 +201,7 @@ add_btn.addEventListener("click", async () => {
 
 async function loadUpFiles() {
   files = [];
+  block = false;
   try {
     const fileBuffers = await window.electronAPI.filePathToFile(filePaths);
     let i = 0;
@@ -223,6 +220,12 @@ async function loadUpFiles() {
   }
   catch (error) {
     console.error('Error with loadUpFiles: ', error);
+    resetPlayer();
+    updatePlaylist();
+    loadPlaylist();
+    document.querySelector(".left-side").classList.remove("disabled");
+    document.querySelector(".right-side").classList.remove("disabled");
+    block = true;
   }
 }
 
@@ -286,7 +289,7 @@ function updateDisplayList() {
     block = true;
   }
   music_list.innerHTML = "";
-  for(let i = 0; i < track_list.length; i++) {
+  for (let i = 0; i < track_list.length; i++) {
     let li = document.createElement("li");
     let spa = document.createElement("span")
     spa.appendChild(document.createTextNode(track_list[i].name));
